@@ -79,6 +79,28 @@ $themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catc
         </div>
     </div>
 </header>
+
+<?php /* Category quick-strip: all car + article categories, site-wide (admin-managed) */
+$carCats    = get_categories('car');
+$basePath   = rtrim((string)parse_url(url(''), PHP_URL_PATH), '/');
+$reqPath    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+if ($basePath !== '' && str_starts_with($reqPath, $basePath)) { $reqPath = substr($reqPath, strlen($basePath)); }
+$activeSlug = preg_match('~^/category/([a-z0-9-]+)~i', $reqPath, $m) ? $m[1] : null;
+?>
+<div class="cat-strip">
+    <div class="container cat-strip-inner">
+        <span class="cat-strip-label">Browse</span>
+        <nav class="cat-strip-links" aria-label="All categories">
+            <?php foreach ($carCats as $c): ?>
+                <a class="cat-chip<?= $activeSlug === $c['slug'] ? ' active' : '' ?>" href="<?= e(category_url($c)) ?>"><?= e($c['name']) ?></a>
+            <?php endforeach; ?>
+            <span class="cat-strip-sep" aria-hidden="true"></span>
+            <?php foreach ($topCats as $c): ?>
+                <a class="cat-chip<?= $activeSlug === $c['slug'] ? ' active' : '' ?>" href="<?= e(category_url($c)) ?>"><?= e($c['name']) ?></a>
+            <?php endforeach; ?>
+        </nav>
+    </div>
+</div>
 <?php ad_slot('header', 'ad-header'); ?>
 
 <!-- Mobile navigation drawer -->

@@ -255,6 +255,29 @@ ul, ol { padding-left: 1.2em; }
     background: linear-gradient(90deg, var(--color-primary) 0%, rgba(209, 37, 47, 0.25) 55%, transparent 90%);
     pointer-events: none;
 }
+
+/* ── Category strip (below header) ─────────────────────────── */
+.cat-strip { background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.cat-strip-inner { display: flex; align-items: center; gap: .75rem; padding: .45rem 1rem; }
+.cat-strip-label {
+    flex-shrink: 0; font: 700 .78rem var(--font-display);
+    letter-spacing: .09em; text-transform: uppercase; color: var(--color-muted);
+}
+.cat-strip-links {
+    display: flex; align-items: center; gap: .4rem;
+    overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+}
+.cat-strip-links::-webkit-scrollbar { display: none; }
+.cat-chip {
+    flex-shrink: 0; padding: .26rem .75rem; border: 1px solid var(--color-border);
+    border-radius: 999px; font-size: .78rem; font-weight: 500;
+    color: var(--color-muted); text-decoration: none; white-space: nowrap;
+    transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.cat-chip:hover { color: var(--color-primary); border-color: var(--color-primary); background: var(--color-primary-soft); transform: translateY(-1px); }
+.cat-chip.active { color: #fff; background: var(--color-primary); border-color: var(--color-primary); }
+.cat-strip-sep { flex-shrink: 0; width: 1px; height: 1.1rem; background: var(--color-border); margin: 0 .25rem; }
+
 .header-bar { display: flex; align-items: center; gap: 1rem; height: var(--header-height); }
 .logo img { height: 34px; width: auto; }
 .logo-text { font: 700 1.4rem var(--font-display); letter-spacing: 0.03em; }
@@ -772,5 +795,5 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
     .hero::after { background: linear-gradient(180deg, rgba(8, 14, 24, 0.86) 0%, rgba(8, 14, 24, 0.35) 70%); }
 }
 @media print {
-    .site-header, .site-footer, .ad-slot, .share-buttons, .toast-region, .admin-bar-link { display: none !important; }
+    .site-header, .cat-strip, .site-footer, .ad-slot, .share-buttons, .toast-region, .admin-bar-link { display: none !important; }
 }

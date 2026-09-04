@@ -48,23 +48,23 @@ $specRows = [ // label => [value, format]
     'Displacement'          => [$specs['displacement_cc'] ?? '', 'cc'],
     'Fuel type'             => [$specs['fuel_type'] ?? '', 'text'],
     'Power'                 => [$specs['power_hp'] ?? '', 'hp'],
-    'Torque'                => [$specs['torque_nm'] ?? '', 'Nm'],
+    'Torque'                => [$specs['torque_nm'] ?? '', 'lb-ft'],
     'Transmission'          => [$specs['transmission'] ?? '', 'text'],
     'Drive type'            => [$specs['drive_type'] ?? '', 'text'],
-    '0–100 km/h'            => [$specs['acceleration_s'] ?? '', 's'],
-    'Top speed'             => [$specs['top_speed_kmh'] ?? '', 'km/h'],
-    'Fuel tank'             => [$specs['fuel_tank_l'] ?? '', 'L'],
-    'City fuel economy'     => [$specs['mileage_city_kml'] ?? '', 'km/l'],
-    'Highway fuel economy'  => [$specs['mileage_highway_kml'] ?? '', 'km/l'],
+    '0–60 mph'              => [$specs['acceleration_s'] ?? '', 's'],
+    'Top speed'             => [$specs['top_speed_kmh'] ?? '', 'mph'],
+    'Fuel tank'             => [$specs['fuel_tank_l'] ?? '', 'gal'],
+    'City fuel economy'     => [$specs['mileage_city_kml'] ?? '', 'mpg'],
+    'Highway fuel economy'  => [$specs['mileage_highway_kml'] ?? '', 'mpg'],
     'Battery'               => [$specs['battery_kwh'] ?? '', 'kWh'],
-    'Electric range'        => [$specs['range_km'] ?? '', 'km'],
+    'Electric range'        => [$specs['range_km'] ?? '', 'mi'],
     'Length'                => [$specs['length_mm'] ?? '', 'mm'],
     'Width'                 => [$specs['width_mm'] ?? '', 'mm'],
     'Height'                => [$specs['height_mm'] ?? '', 'mm'],
     'Wheelbase'             => [$specs['wheelbase_mm'] ?? '', 'mm'],
     'Ground clearance'      => [$specs['ground_clearance_mm'] ?? '', 'mm'],
-    'Curb weight'           => [$specs['curb_weight_kg'] ?? '', 'kg'],
-    'Boot space'            => [$specs['boot_space_l'] ?? '', 'L'],
+    'Curb weight'           => [$specs['curb_weight_kg'] ?? '', 'lbs'],
+    'Cargo space'           => [$specs['boot_space_l'] ?? '', 'cu ft'],
     'Seating capacity'      => [$specs['seating'] ?? '', 'seats'],
     'Doors'                 => [$specs['doors'] ?? '', ''],
 ];
@@ -72,7 +72,7 @@ $specGroups = [
     'Engine & Drivetrain' => ['Engine', 'Displacement', 'Fuel type', 'Transmission', 'Drive type'],
     'Performance'         => ['Power', 'Torque', '0–100 km/h', 'Top speed'],
     'Fuel & Economy'      => ['Fuel tank', 'City fuel economy', 'Highway fuel economy', 'Battery', 'Electric range'],
-    'Dimensions & Weight' => ['Length', 'Width', 'Height', 'Wheelbase', 'Ground clearance', 'Curb weight', 'Boot space'],
+    'Dimensions & Weight' => ['Length', 'Width', 'Height', 'Wheelbase', 'Ground clearance', 'Curb weight', 'Cargo space'],
     'Capacity'            => ['Seating capacity', 'Doors'],
 ];
 
@@ -130,11 +130,11 @@ include __DIR__ . '/../includes/header.php';
                     <?php
                     $keySpecs = [
                         [$specs['power_hp'] ?? '', 'Power', 'hp'],
-                        [$specs['torque_nm'] ?? '', 'Torque', 'Nm'],
+                        [$specs['torque_nm'] ?? '', 'Torque', 'lb-ft'],
                         [$specs['engine'] ?? '', 'Engine', ''],
                         [$specs['transmission'] ?? '', 'Gearbox', ''],
                         [$specs['seating'] ?? '', 'Seats', ''],
-                        [$specs['mileage_city_kml'] ?? '', 'City', 'km/l'],
+                        [$specs['mileage_city_kml'] ?? '', 'City', 'mpg'],
                     ];
                     foreach ($keySpecs as [$v, $l, $u]):
                         if ($v === '' || $v === null) continue; ?>

@@ -1,6 +1,18 @@
 # AutoPulse — Car Information & Automotive Blog Website
 
-A complete, production-ready automotive portal built with **pure PHP 8 + MySQL + vanilla JS** — no frameworks, no Composer, no Node.js. Deployable directly to **InfinityFree** (or any Apache shared hosting).
+A complete, production-ready **US-market** automotive portal built with **pure PHP 8 + MySQL + vanilla JS** — no frameworks, no Composer, no Node.js. Deployable directly to **InfinityFree** (or any Apache shared hosting).
+
+> **US audience by default:** USD pricing (MSRP + destination), MPG / mph / 0–60 / inches / lbs units, US-market models (Camry, RAV4, F-150, Mustang, Tahoe, Grand Cherokee, Model 3, Civic Si, GTI, Tiguan…), `America/New_York` timezone and American contact/legal content (incl. CCPA-aware privacy page).
+
+## Deploy to InfinityFree in 5 steps
+
+1. **Database** — InfinityFree client area → MySQL Databases → create one, then open phpMyAdmin and import `sql/database.sql`
+2. **Upload** — FileZilla (host `ftpupload.net`, port 21) → upload everything in this folder into `/htdocs`
+3. **Configure** — edit `config/config.php` on the server: set `APP_ENV` to `'production'` and your DB host/name/user/password
+4. **HTTPS** — enable the free SSL certificate, then uncomment the Force-HTTPS block at the bottom of `.htaccess`
+5. **Log in** — `https://yoursite.com/admin/login.php` → **change the passwords immediately** and set SEO → Canonical site URL
+
+Full details: [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ![Stack](https://img.shields.io/badge/stack-PHP%208%20%7C%20MySQL%20%7C%20Vanilla%20JS-red)
 

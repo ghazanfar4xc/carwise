@@ -1,8 +1,10 @@
 -- ============================================================
--- AutoPulse — MySQL database schema + demo data
+-- AutoPulse — MySQL database schema + demo data (US market)
 -- Import via phpMyAdmin (InfinityFree) or: mysql -u root -p < database.sql
 -- NOTE: CREATE DATABASE/USER lines are for local setup only — on
 -- InfinityFree the database already exists; import the tables only.
+-- SPEC UNITS: values are stored in US units (mpg, mph, 0-60 s,
+-- inches, lbs, cu ft, gallons) even where column names are metric.
 -- ============================================================
 
 -- CREATE DATABASE IF NOT EXISTS autopulse CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -45,35 +47,36 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 ('site_url', ''),
 ('logo', 'assets/images/logo.svg'),
 ('favicon', 'assets/images/favicon.svg'),
-('currency', 'PKR'),
+('currency', 'USD'),
 ('contact_email', 'hello@autopulse.test'),
-('contact_phone', '+92 300 0000000'),
-('contact_address', 'Faisalabad, Punjab, Pakistan'),
+('contact_phone', '+1 (512) 555-0134'),
+('contact_address', 'Austin, TX, United States'),
 ('social_facebook', ''),
 ('social_twitter', ''),
 ('social_instagram', ''),
 ('social_youtube', ''),
-('meta_description', 'AutoPulse — car specifications, prices, honest reviews, comparisons and automotive news for the Pakistani market and beyond.'),
+('meta_description', 'AutoPulse — car specifications, prices, honest reviews, comparisons and automotive news for American buyers.'),
 ('og_image', 'uploads/general/hero.jpg'),
 ('hero_image', 'uploads/general/hero.jpg'),
 ('google_analytics_id', ''),
 ('google_verification', ''),
+('gsc_file_name', ''),
 ('bing_verification', ''),
 ('header_scripts', ''),
 ('footer_scripts', ''),
 ('custom_css', ''),
 ('copyright_text', 'All rights reserved.'),
-('footer_about', 'AutoPulse is an independent automotive publication covering car specifications, prices, reviews and news — built for people who research before they buy.'),
+('footer_about', 'AutoPulse is an independent automotive publication covering car specifications, prices, reviews and news — built for American drivers who research before they buy.'),
 ('maintenance_mode', '0'),
 ('comments_enabled', '1'),
 ('hero_title', 'Find your next car with confidence.'),
-('hero_text', 'Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the showroom.'),
+('hero_text', 'Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the dealership.'),
 ('hero_cta_label', 'Browse Cars'),
 ('hero_cta_url', 'cars'),
 ('hero_cta2_label', 'Compare Models'),
 ('hero_cta2_url', 'compare'),
 ('compare_cta_title', 'Can''t decide? Let the specs decide.'),
-('compare_cta_text', 'Put up to three cars side by side — price, power, economy and dimensions — and see the real differences highlighted automatically.'),
+('compare_cta_text', 'Put up to three cars side by side — price, power, MPG and dimensions — and see the real differences highlighted automatically.'),
 ('compare_cta_btn', 'Start Comparing'),
 ('newsletter_title', 'Never miss an update'),
 ('newsletter_text', 'New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.'),
@@ -97,15 +100,16 @@ CREATE TABLE categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO categories (name, slug, type, description, sort_order) VALUES
-('Car News', 'car-news', 'article', 'The latest launches, price updates and industry news from the automotive world.', 1),
-('Car Reviews', 'car-reviews', 'article', 'In-depth reviews: how cars actually drive, ride and cost to run.', 2),
+('Car News', 'car-news', 'article', 'The latest launches, price updates and industry news from the US auto market.', 1),
+('Car Reviews', 'car-reviews', 'article', 'In-depth reviews: how cars actually drive, ride and cost to own.', 2),
 ('Buying Guides', 'buying-guides', 'article', 'Practical advice for choosing, checking and negotiating your next car.', 3),
 ('Maintenance', 'maintenance', 'article', 'Service intervals, DIY checks and tips to keep your car healthy.', 4),
-('EV & Hybrid', 'ev-hybrid', 'article', 'Electric and hybrid cars: technology, charging and ownership costs.', 5),
-('SUVs', 'suv', 'car', 'Sport utility vehicles — high seating, practical cabins and bad-road capability.', 1),
-('Sedans', 'sedan', 'car', 'Classic three-box saloons focused on comfort and refinement.', 2),
-('Hatchbacks', 'hatchback', 'car', 'Compact, city-friendly cars with practical boots.', 3),
-('Electric Cars', 'electric', 'car', 'Fully electric vehicles available or expected in the region.', 4);
+('EV & Hybrid', 'ev-hybrid', 'article', 'Electric and hybrid cars: technology, charging and ownership costs in America.', 5),
+('SUVs & Crossovers', 'suv', 'car', 'America''s favorite body style — raised seating, cargo space and all-weather confidence.', 1),
+('Sedans', 'sedan', 'car', 'Classic three-box cars focused on comfort, efficiency and refinement.', 2),
+('Hatchbacks', 'hatchback', 'car', 'Compact, city-friendly cars with surprisingly practical cargo holds.', 3),
+('Electric Cars', 'electric', 'car', 'Fully electric vehicles on sale in the United States.', 4),
+('Trucks', 'trucks', 'car', 'Full-size and midsize pickups — towing, hauling and capability.', 5);
 
 -- ── Tags ─────────────────────────────────────────────────────
 DROP TABLE IF EXISTS tags;
@@ -116,9 +120,10 @@ CREATE TABLE tags (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO tags (name, slug) VALUES
-('Toyota','toyota'),('Honda','honda'),('Suzuki','suzuki'),('Kia','kia'),('Hyundai','hyundai'),
-('MG','mg'),('Tesla','tesla'),('BMW','bmw'),('Changan','changan'),('SUV','suv'),('Sedan','sedan'),
-('Electric','electric'),('Price Watch','price-watch'),('Fuel Economy','fuel-economy'),('Used Cars','used-cars');
+('Toyota','toyota'),('Honda','honda'),('Ford','ford'),('Chevrolet','chevrolet'),('Jeep','jeep'),
+('Tesla','tesla'),('BMW','bmw'),('Volkswagen','volkswagen'),('Hyundai','hyundai'),('Kia','kia'),
+('SUV','suv'),('Sedan','sedan'),('Truck','truck'),('Electric','electric'),('Muscle Cars','muscle-cars'),
+('MPG','mpg'),('Used Cars','used-cars'),('Tax Credit','tax-credit');
 
 -- ── Brands ───────────────────────────────────────────────────
 DROP TABLE IF EXISTS brands;
@@ -140,17 +145,18 @@ CREATE TABLE brands (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO brands (name, slug, country, founded_year, logo, description, featured, sort_order) VALUES
-('Toyota','toyota','Japan',1937,'assets/images/brands/toyota.svg','<p>Toyota is the world''s largest automaker, famous for reliability and strong resale value. Its local line-up spans the budget Yaris to the Land Cruiser, with the Corolla an institution on Pakistani roads.</p>',1,1),
-('Honda','honda','Japan',1948,'assets/images/brands/honda.svg','<p>Honda builds some of the best engines in the business and pairs them with sharp chassis tuning. The Civic and City are among Pakistan''s most desired sedans.</p>',1,2),
-('Suzuki','suzuki','Japan',1909,'assets/images/brands/suzuki.svg','<p>Suzuki dominates Pakistan''s entry-level market with the Alto, Cultus and Ravi — small, simple cars that are cheap to buy, run and fix.</p>',1,3),
-('Kia','kia','South Korea',1944,'assets/images/brands/kia.svg','<p>Kia returned to Pakistan in 2019 and quickly won buyers with the Sportage and Seltis — generous equipment and striking design at aggressive prices.</p>',1,4),
-('Hyundai','hyundai','South Korea',1967,'assets/images/brands/hyundai.svg','<p>Hyundai offers Korean value with growing polish: the Tucson SUV and Elantra sedan are its Pakistani flagships.</p>',1,5),
-('MG','mg','United Kingdom/China',1924,'assets/images/brands/mg.svg','<p>MG, now owned by SAIC, undercuts rivals on price while delivering SUV style and long equipment lists — the HS is its best seller locally.</p>',1,6),
-('Changan','changan','China',1862,'assets/images/brands/changan.svg','<p>Changan is one of China''s oldest automakers and entered Pakistan with the Oshan X7, a seven-seat-value SUV that disrupted the market.</p>',0,7),
-('Tesla','tesla','United States',2003,'assets/images/brands/tesla.svg','<p>Tesla made electric cars desirable: long range, over-the-air updates and industry-leading efficiency. Models are imported into Pakistan.</p>',0,8),
-('BMW','bmw','Germany',1916,'assets/images/brands/bmw.svg','<p>BMW builds the driver''s choice among German luxury sedans — the 3 Series remains the benchmark for handling in its class.</p>',0,9);
+('Toyota','toyota','Japan',1937,'assets/images/brands/toyota.svg','<p>Toyota is America''s best-selling automaker, famous for reliability and resale value. The Camry and RAV4 are fixtures on US roads, and the brand''s hybrid lineup leads the market.</p>',1,1),
+('Ford','ford','United States',1903,'assets/images/brands/ford.svg','<p>Ford built America on wheels. Today the F-150 has been the country''s best-selling vehicle for over four decades, while the Mustang keeps the muscle-car flame alive.</p>',1,2),
+('Honda','honda','Japan',1948,'assets/images/brands/honda.svg','<p>Honda pairs thrifty engines with engaging chassis tuning. The Civic and Accord are perennial 10-Best picks, and Honda''s resale numbers are among the strongest in the industry.</p>',1,3),
+('Chevrolet','chevrolet','United States',1911,'assets/images/brands/chevrolet.svg','<p>Chevrolet covers America from the affordable Trax to the Corvette supercar. The Silverado and Tahoe anchor the brand''s full-size truck and SUV heartland.</p>',1,4),
+('Tesla','tesla','United States',2003,'assets/images/brands/tesla.svg','<p>Tesla made electric vehicles mainstream in America: long range, over-the-air updates and the largest Supercharger network in the country.</p>',1,5),
+('Jeep','jeep','United States',1941,'assets/images/brands/jeep.svg','<p>Jeep invented the SUV and still trades on genuine off-road credibility. The Grand Cherokee blends trail ability with family comfort.</p>',1,6),
+('Volkswagen','volkswagen','Germany',1937,'assets/images/brands/volkswagen.svg','<p>Volkswagen brings European driving manners to mainstream America — the GTI invented the hot hatch, and the Tiguan and redesigned 2026 lineup aim squarely at US families.</p>',1,7),
+('Hyundai','hyundai','South Korea',1967,'assets/images/brands/hyundai.svg','<p>Hyundai wins American buyers with value, quality and America''s Best Warranty. The Tucson is one of the best-equipped compact SUVs at any price.</p>',1,8),
+('Kia','kia','South Korea',1944,'assets/images/brands/kia.svg','<p>Kia has become a design-led powerhouse: the Telluride and Sportage punch far above their price, and the brand routinely tops quality surveys.</p>',1,9),
+('BMW','bmw','Germany',1916,'assets/images/brands/bmw.svg','<p>BMW builds the driver''s choice among German luxury sedans — the 3 Series remains the benchmark for handling in its class.</p>',0,10);
 
--- ── Car models ───────────────────────────────────────────────
+-- ── Car models (US market, prices in USD) ────────────────────
 DROP TABLE IF EXISTS car_models;
 CREATE TABLE car_models (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -184,19 +190,22 @@ CREATE TABLE car_models (
   CONSTRAINT fk_car_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO car_models (brand_id, name, slug, generation, year_start, body_type, segment, price, price_note, tagline, overview, pros, cons, faq, main_image, status, is_featured, is_popular, views) VALUES
-(1,'Corolla Alt Grande','corolla-alt-grande','12th Gen (E210)',2026,'Sedan','C-Segment',7649000,NULL,'The benchmark sedan — now with ADAS suite','<p>The Toyota Corolla Alt Grande is the best-known sedan on Pakistani roads. The 1.8-litre engine is tuned for durability and resale, while the 2026 model adds a full driver-assistance suite to the top variant. It is not the cheapest, but it is the safest used-car bet in the country.</p><h2>What''s new for 2026</h2><p>Updated grille, wireless smartphone mirroring, and Toyota Safety Sense across the Grande trim.</p>','["Legendary reliability and resale value","Strong dealer and parts network nationwide","Comfortable, well-damped ride for rough roads","New ADAS safety suite on the top variant"]','["CVT drones under hard acceleration","Rear seat space trails some rivals","Infotainment lags newer Korean competitors"]','[{"q":"What is the fuel average of the Corolla Alt?","a":"Expect 10–11 km/l in city driving and up to 14 km/l on the highway with a light foot."},{"q":"Is the Corolla Alt Grande worth the premium?","a":"If resale value and ADAS features matter to you, yes — the Grande holds its value better than any rival."}]','uploads/cars/toyota-corolla.jpg','published',1,1,2384),
-(2,'Civic RS Turbo','civic-rs-turbo','11th Gen',2026,'Sedan','C-Segment',9099000,NULL,'Turbocharged style leader of the sedan segment','<p>The Honda Civic RS pairs a 1.5-litre VTEC Turbo with the sharpest design in its class. The cabin feels a class above, with honeycomb vents and a 9-inch touchscreen, and the chassis is genuinely fun on a winding road.</p>','["Strong turbocharged performance","Class-leading design and cabin quality","Excellent handling and steering feel","Honda sensing ADAS suite"]','["Firm low-speed ride","Price closes on entry German cars","Ground clearance needs care on speed breakers"]','[{"q":"Does the Civic RS need hi-octane fuel?","a":"Honda recommends 92 RON minimum; hi-octane improves throttle response and is advised for the RS turbo."}]','uploads/cars/honda-civic.jpg','published',1,1,1975),
-(3,'Alto VXL AGS','alto-vxl-ags','8th Gen',2026,'Hatchback','A-Segment',2459000,NULL,'Pakistan''s most affordable automatic car','<p>The Suzuki Alto VXL AGS is the default first car: a 660cc kei-car platform with an automated manual gearbox. It is tiny outside but seats four, sips fuel, and parts are available in every town.</p>','["Lowest purchase price for an automatic","18+ km/l highway fuel economy","Cheap parts and servicing everywhere","Compact dimensions ideal for city traffic"]','["AGS gearbox shifts slowly","Noisy at motorway speeds","Basic safety kit — two airbags max"]','[{"q":"Is the Alto VXL AGS good for the motorway?","a":"It manages, but 100–110 km/h is the comfortable limit; long highway trips are tiring."},{"q":"What is the real fuel average?","a":"Owners report 15–18 km/l in the city and up to 21 km/l on the highway."}]','uploads/cars/suzuki-alto.jpg','published',0,1,3120),
-(4,'Sportage AWD','sportage-awd','5th Gen (NQ5)',2026,'SUV','C-SUV',8049000,NULL,'The SUV that changed Pakistan''s market','<p>The Kia Sportage proved Pakistani buyers would pay premium-hatch money for a fully-loaded SUV. You get a turbo option, all-wheel drive, panoramic sunroof and a full ADAS suite in the top trims.</p>','["Loaded equipment list even in mid trims","Comfortable, quiet highway cruiser","Strong resale demand","Available all-wheel drive"]','["Dual-clutch transmission can hesitate","Rear headroom is merely adequate","Service costs above Japanese rivals"]','[{"q":"Which Sportage trim is the best value?","a":"The mid trim keeps the panoramic roof and key safety kit while saving roughly PKR 800,000 over the flagship."}]','uploads/cars/kia-sportage.jpg','published',1,1,4210),
-(5,'Tucson Ultimate','tucson-ultimate','4th Gen (NX4)',2026,'SUV','C-SUV',8349000,NULL,'Hyundai''s design-led family SUV','<p>The Hyundai Tucson walks the line between family SUV and design statement. The Ultimate trim adds a panoramic roof, powered tailgate and Hyundai SmartSense safety suite as standard.</p>','["Bold, award-winning exterior design","Spacious, flexible interior","Generous standard safety tech","Refined 6-speed automatic"]','["Naturally-aspirated 2.0 lacks punch","No turbo option locally","Ride firms up on large rims"]','NULL','uploads/cars/hyundai-tucson.jpg','published',0,1,1543),
-(6,'MG HS 1.5T','mg-hs-1-5t','2nd Gen',2026,'SUV','C-SUV',7199000,NULL,'SUV presence at hatchback money','<p>The MG HS undercuts every rival on price while looking a size larger. The 1.5 turbo and 7-speed DCT deliver respectable pace, and the cabin is loaded with soft-touch surfaces where buyers look first.</p>','["Sharpest price in the segment","Loaded features: sunroof, 360 camera, leather","Warranty up to 6 years","Turbo engine feels stronger than figures"]','["DCT hesitates in bumper-to-bumper traffic","Resale history still unproven","Some panel gaps betray the price"]','NULL','uploads/cars/mg-hs.jpg','published',0,1,1766),
-(7,'Oshan X7 FutureSense','oshan-x7-futuresense','1st Gen',2026,'SUV','D-SUV',7449000,NULL,'Seven seats and a flagship feature list','<p>Changan''s Oshan X7 offers something no rival at this price dares: seven seats, a 1.5 turbo, adaptive cruise and lane-keep assist in the FutureSense trim.</p>','["Seven usable seats","FutureSense ADAS at a mid price","Strong turbo mid-range","Big boot in five-seat mode"]','["Brand service network still maturing","Third row is kids-only","Firm ride when unladen"]','NULL','uploads/cars/changan-oshan-x7.jpg','published',0,0,987),
-(8,'Model 3 Long Range','model-3-long-range','Highland Facelift',2026,'Sedan','D-Segment',16499000,'Import — indicative price','The electric benchmark','<p>The Tesla Model 3 Long Range remains the most efficient way to travel electrically: around 580 km of mixed range, a minimal cabin that ages well, and a Supercharger-grade charging curve on DC fast charging.</p>','["Class-leading efficiency and real range","Instant, silent acceleration","Minimal, high-quality cabin","Over-the-air software updates"]','["Import pricing with duties","Charging infrastructure still thin","Service network is third-party"]','[{"q":"Can the Model 3 be charged at home in Pakistan?","a":"Yes — a 7 kW home charger adds about 40 km of range per hour. A full overnight charge covers a week of city driving."}]','uploads/cars/tesla-model-3.jpg','published',1,1,2871),
-(9,'330i M Sport','330i-m-sport','7th Gen (G20)',2026,'Sedan','D-Segment',21499000,'Import — indicative price','The driver''s compact executive','<p>The BMW 330i is the enthusiast''s answer in the executive class: a 255 hp 2.0 turbo, near-perfect 50:50 balance and an interior that finally matches the badge. The M Sport trim adds the body kit and suspension buyers actually want.</p>','["Best-in-class handling","Strong, efficient B48 engine","High-quality, driver-focused cabin","Holds value well among imports"]','["Expensive options list","Run-flat tyres hurt ride comfort","Ground clearance is optimistic for local roads"]','NULL','uploads/cars/bmw-330i.jpg','published',0,0,1102),
-(1,'Fortuner Legender','fortuner-legender','2nd Gen',2026,'SUV','E-SUV',33999000,NULL,'The status SUV','<p>The Toyota Fortuner Legender is the default statement SUV: body-on-frame toughness, a 204 hp 2.8 diesel and commanding road presence. The Legender trim adds the full safety suite and sharper styling.</p>','["Commanding road presence","Bulletproof 2.8 diesel + 4WD","Excellent resale value","7 seats as standard"]','["Firm, jiggly ride","Truck-like handling","Price has climbed steeply"]','NULL','uploads/cars/toyota-fortuner.jpg','published',0,1,2410);
+INSERT INTO car_models (id, brand_id, name, slug, generation, year_start, body_type, segment, price, price_note, tagline, overview, pros, cons, faq, main_image, status, is_featured, is_popular, views) VALUES
+(1,1,'Camry LE Hybrid','camry-le-hybrid','8th Gen (XV80)',2026,'Sedan','Midsize',28995,'MSRP + destination','The best-selling car in America, now hybrid-only','<p>The Toyota Camry needs no introduction — it has been America''s best-selling passenger car for over two decades. For 2026 it is hybrid-only, and that is good news: 225 combined horsepower, up to 47 MPG combined and a quieter cabin make the default family sedan better than ever.</p><h2>What''s new for 2026</h2><p>The fifth-generation hybrid system is standard on every trim, Toyota Safety Sense 3.0 adds traffic jam assist, and the LE returns an EPA-rated 53/50 MPG city/highway.</p>','[''Class-leading fuel economy (up to 53 MPG city)'',''Standard hybrid powertrain with 225 hp'',''Excellent predicted reliability and resale value'',''Quiet, comfortable ride quality'']','[''No more V6 or plug-in option'',''Trunk is smaller than before'',''Infotainment learning curve'']','[{"q":"How many MPG does the 2026 Camry get?","a":"The Camry LE Hybrid is EPA-rated at 53 MPG city / 50 MPG highway — best in the midsize class."},{"q":"Is the Camry still reliable?","a":"Toyota''s hybrid systems have a two-decade track record; the Camry consistently tops reliability surveys."}]','uploads/cars/toyota-camry.jpg','published',1,1,3120),
+(2,1,'RAV4 XLE','rav4-xle','6th Gen',2026,'SUV','Compact SUV',31090,'MSRP + destination','America''s best-selling vehicle that isn''t a truck','<p>The Toyota RAV4 is the compact SUV every competitor benchmarks. The redesigned 2026 model brings a hybrid powertrain to every trim, more tech, and up to 40 MPG combined — while keeping the cargo space and visibility families actually buy it for.</p>','[''Hybrid standard across the range'',''Excellent resale value'',''Roomy cargo area and great visibility'',''Available AWD with torque vectoring'']','[''Road noise over broken pavement'',''Base engine feels merely adequate'',''Popular trims sell at MSRP or above'']','[{"q":"Does the 2026 RAV4 come as a plug-in?","a":"Yes — the RAV4 Prime plug-in hybrid returns with around 42 miles of electric range."}]','uploads/cars/toyota-rav4.jpg','published',1,1,4380),
+(3,3,'Civic Si','civic-si','11th Gen',2026,'Sedan','Compact',30250,'MSRP + destination','The affordable driver''s car, with a manual gearbox','<p>The Honda Civic Si remains the purest affordable enthusiast car in America: a 200-hp turbo, a proper six-speed manual with rev-match, and a limited-slip differential — standard. It doubles as a perfectly sensible 37-MPG-highway commuter.</p>','[''Standard 6-speed manual with rev matching'',''Limited-slip differential'',''37 MPG highway'',''Honda reliability and resale'']','[''No automatic transmission option'',''Firmer ride than a regular Civic'',''Rear seat is tight for adults'']','[{"q":"Is the Civic Si available with an automatic?","a":"No — the Si is manual-only. Buyers who want two pedals should look at the Civic Sport Touring hybrid."}]','uploads/cars/honda-civic.jpg','published',0,1,2140),
+(4,7,'Golf GTI','golf-gti','Mk 8.5',2026,'Hatchback','Compact',33125,'MSRP + destination','The hot hatch that started it all','<p>Every hot hatchback is measured against the Volkswagen Golf GTI because it invented the formula in 1983: practical hatchback, turbocharged punch, genuinely good handling. The Mk 8.5 refresh adds a bigger touchscreen and a much-improved interface.</p>','[''241 hp turbo with 273 lb-ft of torque'',''Sharper interface for 2026'',''Premium-feeling cabin'',''Genuinely fun on a back road'']','[''Requires premium fuel'',''DCT can hesitate in traffic'',''Fewer standard features than rivals'']','NULL','uploads/cars/vw-golf-gti.jpg','published',0,0,1290),
+(5,9,'Sportage X-Pro','sportage-x-pro','5th Gen (NQ5)',2026,'SUV','Compact SUV',32695,'MSRP + destination','The value benchmark of compact SUVs','<p>The Kia Sportage won America over by loading in equipment at aggressive prices. The X-Pro trim adds genuine light-off-road ability — all-wheel drive, all-terrain tires and a locking center differential — for thousands less than rivals'' mid trims.</p>','[''Loaded equipment list at every trim'',''X-Pro adds real off-road kit'',''Industry-leading warranty'',''Roomy second row and cargo area'']','[''Base engine is underwhelming'',''Hybrid trims get no X-Pro'',''Dealer markups on popular colors'']','[{"q":"Which Sportage trim is the best value?","a":"The EX hybrid keeps the big touchscreen and full safety suite for about $2,000 less than the SX-Prestige."}]','uploads/cars/kia-sportage.jpg','published',1,1,2860),
+(6,8,'Tucson SEL','tucson-sel','4th Gen (NX4)',2026,'SUV','Compact SUV',30500,'MSRP + destination','Design-led comfort for daily family duty','<p>The Hyundai Tucson walks the line between family SUV and design statement. The SEL Convenience trim adds a power liftgate, roof rails and Blind-Spot View Monitor for less than most rivals charge for fabric seats.</p>','[''Bold, award-winning design'',''Generous standard safety tech'',''America''s Best Warranty'',''Hybrid available on every trim'']','[''2.5L engine is noisy under load'',''No hybrid on base Blue trim'',''Touch controls take getting used to'']','NULL','uploads/cars/hyundai-tucson.jpg','published',0,1,1770),
+(7,7,'Tiguan SE','tiguan-se','3rd Gen',2026,'SUV','Compact SUV',30190,'MSRP + destination','The European take on the American family SUV','<p>Volkswagen redesigned the Tiguan for 2026 on the MQB Evo platform: more power (201 hp), a light hybrid system, available three rows and the sort of composed highway manners German brands trade on.</p>','[''Refined road manners'',''Available 3rd row seating'',''201 hp as standard'',''Upscale interior materials'']','[''Cargo space behind 3rd row is minimal'',''No hybrid version yet'',''Premium fuel recommended'']','NULL','uploads/cars/vw-tiguan.jpg','published',0,0,980),
+(8,2,'F-150 XLT','f-150-xlt','14th Gen (P702)',2026,'Truck','Full-size Pickup',46145,'MSRP + destination','America''s best-selling vehicle, 40+ years running','<p>The Ford F-150 is not just a truck — it has been America''s best-selling vehicle of any kind for over four decades. The XLT with the 2.7L EcoBoost hits the sweet spot: 325 hp, 400 lb-ft, up to 13,000 lbs of towing in the right configuration, and running costs that surprise people who expect semi-truck bills.</p>','[''Best-selling truck for 47 years'',''Twin-turbo V6 with strong towing'',''Huge range of configurations'',''Strong resale value'']','[''Options inflate prices quickly'',''Ride is firm unloaded'',''Base V6 is thirsty'']','[{"q":"How much can the F-150 XLT tow?","a":"Properly equipped with the 2.7L EcoBoost and tow package, up to 13,000 lbs; the 3.5L EcoBoost raises that to 13,500 lbs."},{"q":"Which engine should I get?","a":"The 2.7L EcoBoost suits most owners; frequent towers should step up to the 3.5L EcoBoost."}]','uploads/cars/ford-f-150.jpg','published',1,1,5210),
+(9,2,'Mustang GT','mustang-gt','7th Gen (S650)',2026,'Coupe','Muscle Car',46810,'MSRP + destination','The V8 muscle car that refuses to die','<p>While rivals go quiet and electric, the Ford Mustang GT keeps a naturally aspirated 5.0L V8 behind that long hood — 486 horsepower, an available six-speed manual and a soundtrack no speaker can fake. The S650 generation adds the digital drift brake and a far nicer cabin.</p>','[''486-hp naturally aspirated V8'',''Available 6-speed manual'',''Iconic American styling'',''Surprisingly livable daily'']','[''15 MPG city'',''Back seat is decorative'',''Winter tires a must in snow states'']','[{"q":"Does the Mustang GT need premium gas?","a":"Ford recommends 93 octane for full performance; it runs on 87 with reduced power."}]','uploads/cars/ford-mustang-gt.jpg','published',1,1,3960),
+(10,4,'Tahoe Z71','tahoe-z71','5th Gen',2026,'SUV','Full-size SUV',64370,'MSRP + destination','The full-size SUV that defined the segment','<p>The Chevrolet Tahoe is the default American full-size SUV: three rows, real towing (up to 8,400 lbs) and a V8 under the hood. The Z71 adds off-road suspension, skid plates and all-terrain tires for families whose vacations leave the pavement.</p>','[''V8 power with 10-speed automatic'',''Up to 8,400 lbs towing'',''Huge cargo space behind row two'',''Commanding driving position'']','[''Thirsty in city driving'',''Massive in parking garages'',''Third row is a compromise'']','NULL','uploads/cars/chevrolet-tahoe.jpg','published',0,1,2470),
+(11,6,'Grand Cherokee Limited','grand-cherokee-limited','WL',2026,'SUV','Midsize SUV',43665,'MSRP + destination','Trail-rated luxury for the school run','<p>The Jeep Grand Cherokee does double duty: a genuinely trail-capable 4x4 and a leather-trimmed family hauler. The Limited''s Quadra-Trac I all-wheel drive, panoramic sunroof and ventilated seats make it the value sweet spot of the lineup.</p>','[''Real off-road capability'',''Upscale Limited interior'',''Plug-in 4xe available'',''Comfortable air suspension option'']','[''V6 fuel economy is mediocre'',''Infotainment can be laggy'',''Higher trims get expensive fast'']','NULL','uploads/cars/jeep-grand-cherokee.jpg','published',0,0,1520),
+(12,5,'Model 3 Long Range','model-3-long-range','Highland Facelift',2026,'Sedan','Compact Luxury',47740,'MSRP + est. fees','The electric benchmark','<p>The Tesla Model 3 Long Range remains the most efficient way to travel electrically in America: 363 miles of EPA range, access to the Supercharger network, and a charging curve competitors still chase. The Highland refresh fixed the ride and added a quieter cabin.</p>','[''363 miles EPA range'',''Supercharger network access'',''Instant, silent acceleration'',''May qualify for the $7,500 federal tax credit'']','[''No CarPlay or Android Auto'',''Build quality can vary'',''Service centers are sparse in rural areas'']','[{"q":"Does the Model 3 qualify for the federal tax credit?","a":"Eligibility depends on current IRS rules and final assembly sourcing — check the IRS Clean Vehicle list before purchase; leases often qualify regardless."},{"q":"How long does home charging take?","a":"On a 240V Level 2 charger, a full charge takes about 8 hours — overnight for most owners."}]','uploads/cars/tesla-model-3.jpg','published',1,1,4510),
+(13,10,'330i M Sport','330i-m-sport','7th Gen (G20)',2026,'Sedan','Compact Luxury',45500,'MSRP + destination','The driver''s compact executive sedan','<p>The BMW 330i is the enthusiast''s answer in the entry-luxury class: a 255-hp turbo four, near-perfect 50:50 balance and an interior that finally matches the badge. The M Sport trim adds the body kit, bigger brakes and suspension buyers actually want.</p>','[''Best-in-class handling'',''Strong and efficient B48 engine'',''High-quality, driver-focused cabin'',''36 MPG highway'']','[''Options list gets expensive fast'',''Run-flat tires hurt ride comfort'',''Rivals offer more standard power'']','NULL','uploads/cars/bmw-330i.jpg','published',0,0,1350);
 
--- ── Car specs (1:1) ──────────────────────────────────────────
+-- ── Car specs (US units: mpg, mph, 0-60 s, inches, lbs, cu ft, gal) ──
 DROP TABLE IF EXISTS car_specs;
 CREATE TABLE car_specs (
   car_id INT UNSIGNED PRIMARY KEY,
@@ -204,39 +213,42 @@ CREATE TABLE car_specs (
   displacement_cc SMALLINT UNSIGNED NULL,
   fuel_type VARCHAR(40) NULL,
   power_hp SMALLINT UNSIGNED NULL,
-  torque_nm SMALLINT UNSIGNED NULL,
+  torque_nm SMALLINT UNSIGNED NULL COMMENT 'lb-ft',
   transmission VARCHAR(80) NULL,
   drive_type VARCHAR(30) NULL,
-  acceleration_s DECIMAL(4,1) NULL COMMENT '0-100 km/h',
-  top_speed_kmh SMALLINT UNSIGNED NULL,
-  fuel_tank_l TINYINT UNSIGNED NULL,
-  mileage_city_kml DECIMAL(4,1) NULL,
-  mileage_highway_kml DECIMAL(4,1) NULL,
+  acceleration_s DECIMAL(4,1) NULL COMMENT '0-60 mph',
+  top_speed_kmh SMALLINT UNSIGNED NULL COMMENT 'mph',
+  fuel_tank_l TINYINT UNSIGNED NULL COMMENT 'gallons',
+  mileage_city_kml DECIMAL(4,1) NULL COMMENT 'mpg city',
+  mileage_highway_kml DECIMAL(4,1) NULL COMMENT 'mpg highway',
   battery_kwh DECIMAL(5,1) NULL,
-  range_km SMALLINT UNSIGNED NULL,
-  length_mm SMALLINT UNSIGNED NULL,
-  width_mm SMALLINT UNSIGNED NULL,
-  height_mm SMALLINT UNSIGNED NULL,
-  wheelbase_mm SMALLINT UNSIGNED NULL,
-  ground_clearance_mm TINYINT UNSIGNED NULL,
-  curb_weight_kg SMALLINT UNSIGNED NULL,
-  boot_space_l SMALLINT UNSIGNED NULL,
+  range_km SMALLINT UNSIGNED NULL COMMENT 'miles (EPA)',
+  length_mm SMALLINT UNSIGNED NULL COMMENT 'in',
+  width_mm SMALLINT UNSIGNED NULL COMMENT 'in',
+  height_mm SMALLINT UNSIGNED NULL COMMENT 'in',
+  wheelbase_mm SMALLINT UNSIGNED NULL COMMENT 'in',
+  ground_clearance_mm TINYINT UNSIGNED NULL COMMENT 'in',
+  curb_weight_kg SMALLINT UNSIGNED NULL COMMENT 'lbs',
+  boot_space_l SMALLINT UNSIGNED NULL COMMENT 'cu ft',
   seating TINYINT UNSIGNED NULL,
   doors TINYINT UNSIGNED NULL,
   CONSTRAINT fk_spec_car FOREIGN KEY (car_id) REFERENCES car_models(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO car_specs VALUES
-(1,'1.8L 4-cyl NA (2ZR-FE)',1798,'Petrol',138,173,'CVT (7-speed sequential)','FWD',10.2,190,50,10.5,14.0,NULL,NULL,4630,1795,1435,2700,155,1295,470,5,4),
-(2,'1.5L VTEC Turbo',1498,'Petrol',176,220,'CVT','FWD',8.5,210,47,9.8,13.5,NULL,NULL,4674,1802,1415,2735,134,1323,410,5,4),
-(3,'0.66L 3-cyl (R06A)',658,'Petrol',40,56,'5-speed AGS','FWD',19.0,140,27,17.5,21.5,NULL,NULL,3395,1475,1490,2460,160,670,74,4,5),
-(4,'2.0L MPI 4-cyl',1999,'Petrol',155,192,'6-speed automatic','AWD',11.0,180,58,9.5,12.5,NULL,NULL,4515,1865,1650,2680,180,1540,580,5,5),
-(5,'2.0L MPI 4-cyl',1999,'Petrol',156,192,'6-speed automatic','FWD',11.5,181,54,9.0,12.0,NULL,NULL,4475,1850,1660,2680,181,1530,590,5,5),
-(6,'1.5L Turbo 4-cyl',1490,'Petrol',160,250,'7-speed DCT','FWD',9.2,190,55,9.0,12.0,NULL,NULL,4574,1876,1664,2720,160,1575,483,5,5),
-(7,'1.5L Turbo 4-cyl',1499,'Petrol',185,300,'7-speed DCT','FWD',9.8,180,58,8.5,12.0,NULL,NULL,4705,1860,1720,2780,190,1630,400,7,5),
-(8,'Dual Motor AWD',NULL,'Electric',394,493,'Single-speed','AWD',4.4,201,NULL,NULL,NULL,79,580,4720,1848,1442,2875,140,1830,594,5,4),
-(9,'2.0L Turbo (B48)',1998,'Petrol',255,400,'8-speed automatic','RWD',5.6,250,59,9.8,14.0,NULL,NULL,4713,1827,1442,2851,145,1595,480,5,4),
-(10,'2.8L Turbo Diesel',2755,'Diesel',204,500,'6-speed automatic','4WD',9.9,180,80,9.0,13.0,NULL,NULL,4795,1855,1835,2745,220,2135,200,7,5);
+(1,'2.5L I4 Hybrid (A25A-FXS)',2487,'Hybrid',225,163,'8-speed automatic','FWD',7.2,115,13,53.0,50.0,NULL,NULL,191.5,72.4,56.9,112.2,5.7,3580,15.1,5,4),
+(2,'2.5L I4 Hybrid',2487,'Hybrid',225,184,'8-speed automatic','AWD',7.3,112,14.5,39.0,36.0,NULL,NULL,180.1,73.0,67.3,106.3,8.3,3800,37.5,5,5),
+(3,'1.5L Turbo I4',1498,'Petrol',200,192,'6-speed manual','FWD',7.0,137,12.4,27.0,37.0,NULL,NULL,184.7,70.8,55.7,107.7,4.9,2950,14.4,5,4),
+(4,'2.0L Turbo I4 (EA888)',1984,'Petrol',241,273,'7-speed DCT','FWD',6.0,130,13.2,24.0,34.0,NULL,NULL,168.0,70.4,58.0,103.8,4.9,3150,19.9,5,5),
+(5,'2.5L I4',2497,'Petrol',187,178,'8-speed automatic','AWD',8.8,118,14.5,23.0,28.0,NULL,NULL,183.5,73.4,66.1,108.5,8.3,3650,39.5,5,5),
+(6,'2.5L I4',2497,'Petrol',187,178,'8-speed automatic','FWD',9.0,120,14.5,25.0,31.0,NULL,NULL,182.5,73.4,65.2,108.5,8.3,3600,38.7,5,5),
+(7,'2.0L Turbo I4',1984,'Hybrid',201,207,'8-speed automatic','FWD',7.8,124,15.3,26.0,33.0,NULL,NULL,186.6,73.4,67.0,109.9,8.0,4000,37.1,5,5),
+(8,'2.7L EcoBoost V6',2694,'Petrol',325,400,'10-speed automatic','4WD',6.1,110,23.0,19.0,23.0,NULL,NULL,233.8,79.9,78.3,145.4,9.3,4850,53.2,6,4),
+(9,'5.0L V8 Coyote',5038,'Petrol',486,418,'10-speed automatic','RWD',4.2,155,16.0,15.0,24.0,NULL,NULL,188.4,75.3,55.0,107.9,4.7,3827,13.5,4,2),
+(10,'5.3L V8 EcoTec3',5328,'Petrol',355,383,'10-speed automatic','4WD',7.4,112,24.0,15.0,19.0,NULL,NULL,210.7,81.0,75.9,120.9,10.0,5700,122.9,7,4),
+(11,'3.6L V6 Pentastar',3604,'Petrol',293,260,'8-speed automatic','AWD',7.4,118,23.0,19.0,26.0,NULL,NULL,193.8,77.5,70.9,116.7,8.4,5150,37.7,5,5),
+(12,'Dual Motor AWD',NULL,'Electric',394,351,'Single-speed','AWD',4.2,125,NULL,NULL,NULL,79,363,185.4,72.9,56.5,113.2,5.5,4034,21.0,5,4),
+(13,'2.0L Turbo I4 (B48)',1998,'Petrol',255,295,'8-speed automatic','RWD',5.5,130,15.6,26.0,36.0,NULL,NULL,185.7,71.9,56.2,113.2,5.4,3560,17.0,5,4);
 
 -- ── Car categories (pivot) ───────────────────────────────────
 DROP TABLE IF EXISTS car_categories;
@@ -249,7 +261,7 @@ CREATE TABLE car_categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO car_categories VALUES
-(1,7),(2,7),(3,8),(4,6),(5,6),(6,6),(7,6),(8,7),(8,9),(9,7),(10,6);
+(1,7),(2,6),(3,7),(4,8),(5,6),(6,6),(7,6),(8,10),(9,10),(10,6),(11,6),(12,7),(12,9),(13,7);
 
 -- ── Car features (grouped lists) ─────────────────────────────
 DROP TABLE IF EXISTS car_features;
@@ -263,16 +275,19 @@ CREATE TABLE car_features (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO car_features (car_id, feature_group, item) VALUES
-(1,'safety','6 airbags'),(1,'safety','ABS with EBD'),(1,'safety','Vehicle stability control'),(1,'safety','Adaptive cruise control'),(1,'safety','Lane departure alert'),(1,'technology','9-inch touchscreen'),(1,'technology','Wireless Android Auto / CarPlay'),(1,'technology','Reversing camera'),(1,'interior','Leatherette seats'),(1,'interior','Auto climate control'),(1,'exterior','LED headlamps'),(1,'exterior','16-inch alloys'),
-(2,'safety','6 airbags + knee airbag'),(2,'safety','Honda Sensing ADAS'),(2,'safety','Lane keeping assist'),(2,'safety','Collision mitigation braking'),(2,'technology','9-inch touchscreen'),(2,'technology','Wireless charging'),(2,'technology','8-speaker audio'),(2,'interior','Honeycomb dash design'),(2,'interior','Sunroof'),(2,'exterior','LED headlamps'),(2,'exterior','17-inch alloys'),
-(3,'safety','2 airbags'),(3,'safety','ABS with EBD'),(3,'technology','7-inch touchscreen'),(3,'technology','Smartphone mirroring'),(3,'interior','Manual AC'),(3,'interior','Power windows'),(3,'exterior','13-inch alloys'),
-(4,'safety','6 airbags'),(4,'safety','Adaptive cruise'),(4,'safety','Blind-spot monitor'),(4,'technology','10.25-inch infotainment'),(4,'technology','360-degree camera'),(4,'technology','Panoramic sunroof'),(4,'interior','Ventilated front seats'),(4,'exterior','18-inch alloys'),(4,'exterior','LED DRLs'),
-(5,'safety','6 airbags'),(5,'safety','SmartSense ADAS'),(5,'technology','10.25-inch touchscreen'),(5,'technology','Wireless CarPlay'),(5,'interior','Powered driver seat'),(5,'interior','Dual-zone climate'),(5,'exterior','Panoramic roof'),(5,'exterior','18-inch alloys'),
-(6,'safety','6 airbags'),(6,'technology','12.3-inch touchscreen'),(6,'technology','360-degree camera'),(6,'interior','Leather seats'),(6,'interior','Panoramic sunroof'),(6,'exterior','18-inch alloys'),
-(7,'safety','6 airbags'),(7,'safety','Adaptive cruise + lane keep'),(7,'technology','12.3-inch touchscreen'),(7,'interior','7-seat layout'),(7,'exterior','19-inch alloys'),
-(8,'safety','Autopilot standard'),(8,'safety','360-degree cameras'),(8,'technology','15-inch centre display'),(8,'technology','Over-the-air updates'),(8,'interior','Glass roof'),(8,'interior','Vegan leather'),(8,'exterior','Aero 18-inch wheels'),
-(9,'safety','6 airbags'),(9,'safety','Driving Assistant Professional'),(9,'technology','Live Cockpit Professional'),(9,'interior','M Sport seats'),(9,'interior','Ambient lighting'),(9,'exterior','M Aerodynamics kit'),
-(10,'safety','7 airbags'),(10,'safety','Toyota Safety Sense'),(10,'technology','9-inch infotainment'),(10,'interior','Leather seats'),(10,'interior','7 seats'),(10,'exterior','18-inch alloys');
+(1,'safety','Toyota Safety Sense 3.0'),(1,'safety','8 airbags'),(1,'safety','Adaptive cruise with stop & go'),(1,'safety','Lane tracing assist'),(1,'technology','8-inch touchscreen'),(1,'technology','Wireless CarPlay / Android Auto'),(1,'technology','7-inch digital cluster'),(1,'interior','Dual-zone auto climate'),(1,'interior','Fabric seats (LE)'),(1,'exterior','LED headlamps'),(1,'exterior','16-inch alloys'),
+(2,'safety','Toyota Safety Sense 3.0'),(2,'safety','Blind-spot monitor'),(2,'safety','Rear cross-traffic braking'),(2,'technology','10.5-inch touchscreen'),(2,'technology','Wireless charging'),(2,'technology','Digital key'),(2,'interior','Power driver seat'),(2,'interior','Rear USB-C ports'),(2,'exterior','Roof rails'),(2,'exterior','18-inch alloys'),
+(3,'safety','Honda Sensing'),(3,'safety','Traffic sign recognition'),(3,'technology','9-inch touchscreen'),(3,'technology','Wireless CarPlay'),(3,'interior','Sport seats with red stitching'),(3,'interior','Moonroof'),(3,'exterior','18-inch matte alloys'),(3,'exterior','Center exhaust finisher'),
+(4,'safety','Front assist + blind-spot monitor'),(4,'safety','Travel assist'),(4,'technology','12.9-inch touchscreen'),(4,'technology','Illuminated grille badge'),(4,'interior','Trips computer w/ lap timer'),(4,'interior','Plaid cloth / leatherette'),(4,'exterior','LED matrix headlights'),(4,'exterior','18-inch Richmond alloys'),
+(5,'safety','Highway Driving Assist'),(5,'safety','Blind-Spot View Monitor'),(5,'safety','Safe Exit Assist'),(5,'technology','12.3-inch touchscreen'),(5,'technology','360-degree camera'),(5,'interior','Synthetic leather seats'),(5,'interior','Dual-zone climate'),(5,'exterior','17-inch all-terrain tires'),(5,'exterior','Roof rails + hitch'),
+(6,'safety','Hyundai SmartSense'),(6,'safety','Blind-Spot View Monitor'),(6,'technology','12.3-inch touchscreen'),(6,'technology','Wireless CarPlay'),(6,'interior','Power driver seat'),(6,'interior','Rear seat reminder'),(6,'exterior','19-inch alloys'),(6,'exterior','LED daytime running lights'),
+(7,'safety','IQ.DRIVE suite'),(7,'safety','Travel assist'),(7,'technology','12.9-inch touchscreen'),(7,'technology','Wireless App-Connect'),(7,'interior','Available 3rd row'),(7,'interior','V-Tex leatherette'),(7,'exterior','IQ.LIGHT LED matrix'),(7,'exterior','18-inch alloys'),
+(8,'safety','Ford Co-Pilot360'),(8,'safety','Blind-spot with trailer coverage'),(8,'safety','360-degree camera package'),(8,'technology','12-inch SYNC 4 touchscreen'),(8,'technology','Pro Power Onboard 2.0kW'),(8,'technology','FordPass remote start'),(8,'interior','Work-grade vinyl/floor mats'),(8,'interior','Rear under-seat storage'),(8,'exterior','18-inch silver alloys'),(8,'exterior','LED box lighting'),
+(9,'safety','Ford Co-Pilot360'),(9,'safety','Reverse brake assist'),(9,'technology','13.2-inch SYNC 4'),(9,'technology','Electronic drift brake'),(9,'technology','Bang & Olufsen audio'),(9,'interior','Leather sport seats'),(9,'interior','Selectable drive modes'),(9,'exterior','Magnetic mirrors + spoiler'),(9,'exterior','19-inch alloys'),
+(10,'safety','Chevy Safety Assist'),(10,'safety','HD surround vision'),(10,'safety','Rear pedestrian braking'),(10,'technology','17.7-inch touchscreen'),(10,'technology','Wireless CarPlay'),(10,'technology','Head-up display'),(10,'interior','Leather seats'),(10,'interior','Power-folding 3rd row'),(10,'exterior','18-inch all-terrain tires'),(10,'exterior','Skid plates'),
+(11,'safety','Full-speed collision warning'),(11,'safety','Parallel & perpendicular park assist'),(11,'technology','10.1-inch Uconnect 5'),(11,'technology','Wireless CarPlay'),(11,'interior','Nappa leather seats'),(11,'interior','Panoramic sunroof'),(11,'exterior','20-inch alloys'),(11,'exterior','Quadra-Trac I 4x4'),
+(12,'safety','Autopilot standard'),(12,'safety','360-degree cameras'),(12,'safety','Blind-spot camera'),(12,'technology','15-inch center display'),(12,'technology','Over-the-air updates'),(12,'technology','Premium connectivity trials'),(12,'interior','Glass roof'),(12,'interior','Vegan leather'),(12,'exterior','18-inch aero wheels'),
+(13,'safety','Driving Assistant Professional'),(13,'safety','Active lane keeping'),(13,'technology','Live Cockpit Professional'),(13,'technology','iDrive 8.5'),(13,'interior','M Sport seats'),(13,'interior','Ambient lighting'),(13,'exterior','M Aerodynamics kit'),(13,'exterior','18-inch M wheels');
 
 -- ── Car images (galleries) ───────────────────────────────────
 DROP TABLE IF EXISTS car_images;
@@ -336,48 +351,48 @@ CREATE TABLE article_tags (
   FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO articles (user_id, brand_id, category_id, title, slug, excerpt, content, featured_image, status, is_featured, views, published_at, faq) VALUES
-(1, NULL, 3, 'Best SUVs in Pakistan for 2026: Every Tier Compared', 'best-suvs-pakistan-2026',
- 'From the value-packed MG HS to the segment-leading Kia Sportage — every SUV on sale in Pakistan in 2026, sorted by budget, features and resale.',
- '<p>The Pakistani SUV market has never been more competitive. Korean brands pushed features up and prices down, Chinese entrants added seven seats at hatchback money, and Toyota keeps charging a premium for peace of mind. Here is how the field stacks up in 2026.</p><h2>Under PKR 8 million: the value kings</h2><p>The <strong>MG HS 1.5T</strong> remains the benchmark for value: a turbo engine, panoramic roof and 360 camera for less than a mid-spec sedan. The <strong>Changan Oshan X7</strong> counters with seven seats and a surprisingly capable ADAS suite.</p><h2>PKR 8–9 million: the mainstream battle</h2><p>The <strong>Kia Sportage</strong> and <strong>Hyundai Tucson</strong> trade blows here. The Sportage wins on equipment and available AWD; the Tucson counters with a more spacious cabin and calmer styling. Both are genuinely good cars — the decision comes down to which dealership is closer.</p><h2>Above PKR 30 million</h2><p>The <strong>Toyota Fortuner Legender</strong> is unbeatable for resale and presence, and nothing else in this list is happy doing 500 km of Balochistan highway either.</p><h2>Our picks</h2><ul><li><strong>Best value:</strong> MG HS 1.5T</li><li><strong>Best all-rounder:</strong> Kia Sportage AWD</li><li><strong>Best for big families:</strong> Changan Oshan X7 FutureSense</li><li><strong>Best resale:</strong> Toyota Fortuner</li></ul>',
- 'uploads/cars/kia-sportage.jpg','published',1,1842,'2026-08-26 09:00:00',
- '[{"q":"Which SUV has the best fuel average in Pakistan?","a":"Among turbo petrol SUVs, the MG HS and Tucson return 9–12 km/l; the diesel Fortuner manages similar figures with far more torque."},{"q":"Are Chinese SUVs reliable?","a":"Early data is encouraging, and warranties run up to 6 years — but the service network is still maturing outside major cities."}]'),
+INSERT INTO articles (id, user_id, brand_id, category_id, title, slug, excerpt, content, featured_image, status, is_featured, views, published_at, faq) VALUES
+(1,1,NULL,3,'Best SUVs in America for 2026: Every Class Compared','best-suvs-america-2026',
+ 'From the hybrid-everything RAV4 to the three-row Tahoe — the best SUVs on sale in the US in 2026, sorted by class, budget and real-world MPG.',
+ '<p>America buys SUVs the way the rest of the world buys cars — more than half of all new vehicles sold here wear an SUV badge. The 2026 lineup is the most competitive ever, with hybrids going mainstream and prices that finally reward cross-shopping.</p><h2>Compact SUVs: the volume kings</h2><p>The <strong>Toyota RAV4</strong> enters its new generation with a hybrid powertrain on every trim and up to 40 MPG combined — it remains the default choice. The <strong>Kia Sportage</strong> counters with more equipment per dollar, and the <strong>Hyundai Tucson</strong> brings the boldest design and America''s best warranty. Volkswagen''s redesigned <strong>Tiguan</strong> adds a European chassis and an available third row.</p><h2>Midsize 2-row: comfort first</h2><p>The <strong>Jeep Grand Cherokee</strong> is still the only one with genuine trail credentials — and its Limited trim is the value sweet spot.</p><h2>Full-size: nothing hauls like them</h2><p>The <strong>Chevrolet Tahoe</strong> tows up to 8,400 lbs, seats eight and shrinks distances on interstate trips in a way no crossover can match.</p><h2>Our picks</h2><ul><li><strong>Best overall:</strong> Toyota RAV4 Hybrid</li><li><strong>Best value:</strong> Kia Sportage EX</li><li><strong>Best for families:</strong> Chevrolet Tahoe Z71</li><li><strong>Best off-pavement:</strong> Jeep Grand Cherokee</li></ul>',
+ 'uploads/cars/toyota-rav4.jpg','published',1,2410,'2026-08-26 09:00:00',
+ '[{"q":"Which SUV gets the best MPG in 2026?","a":"The Toyota RAV4 LE Hybrid leads at up to 41 MPG combined; the Toyota Camry-based Crown Signia trails closely."},{"q":"Are hybrid SUVs worth the premium?","a":"At current gas prices, most hybrids repay their $1,500–$3,000 premium in 3–5 years — and improve resale values too."}]'),
 
-(1, 1, 2, 'Toyota Corolla Alt Grande 2026: First Drive Review', 'toyota-corolla-alt-2026-review',
- 'The 2026 Corolla adds ADAS and a fresher face. We drove 400 km to find out if the king still deserves its crown.',
- '<p>Every reviewer dreams of discovering a hidden gem. The Corolla is the opposite: the most predictable car in Pakistan, and that is precisely the point.</p><h2>What''s new</h2><p>The 2026 Alt Grande receives Toyota Safety Sense — adaptive cruise, lane departure alert with steering assist, and auto high-beam. The grille is sharper, the 9-inch unit finally does wireless mirroring, and rear vents appear for the first time.</p><h2>Driving it</h2><p>The 138 hp 1.8 is unhurried but adequate, and the CVT settles at motorway speeds. Where the Corolla excels is ride quality: broken tarmac that punishes the Civic simply disappears under it.</p><h2>Verdict</h2><p>The Corolla is not the most exciting purchase, but it might be the most rational one in the country. <strong>8.4/10</strong>.</p>',
- 'uploads/cars/toyota-corolla.jpg','published',1,1204,'2026-08-18 09:00:00',NULL),
+(2,1,1,2,'Toyota Camry 2026: First Drive Review','toyota-camry-2026-review',
+ 'The best-selling car in America goes hybrid-only for 2026. We drove 500 miles to see if it keeps its crown.',
+ '<p>Every reviewer wants to find the next big thing. The Camry is the opposite — the most predictable car in America, and that is exactly the point.</p><h2>What''s new</h2><p>For 2026 every Camry is a hybrid: a 2.5-liter four plus a fifth-generation electric drive good for 225 horsepower on front-wheel-drive trims. The LE is EPA-rated at 53/50 MPG — numbers compacts struggled to hit a decade ago.</p><h2>Driving it</h2><p>0-60 mph takes 7.2 seconds — quick enough to never feel unsafe merging onto an interstate. The eCVT drones if you bury the throttle, but around town the Camry glides. Wind and road noise are genuinely luxury-car quiet at 75 mph.</p><h2>Verdict</h2><p>The Camry is not the most exciting purchase, but it may be the most rational one in America. <strong>8.6/10</strong>.</p>',
+ 'uploads/cars/toyota-camry.jpg','published',1,1560,'2026-08-18 09:00:00',NULL),
 
-(2, NULL, 3, 'Honda Civic RS vs Toyota Corolla Alt: Which Sedan Wins in 2026?', 'civic-rs-vs-corolla-alt-2026',
- 'The oldest rivalry in the Pakistani sedan market, decided by the numbers that actually matter.',
- '<p>Both cost more than they used to and both sell in numbers rivals envy. But they aim at different buyers.</p><h2>Performance</h2><p>The Civic''s 1.5 turbo (176 hp) out-powers the Corolla''s 1.8 NA (138 hp) by a wide margin — 0–100 km/h falls in 8.5 s versus 10.2 s. The Corolla''s CVT is smoother; the Civic''s is quicker.</p><h2>Comfort and space</h2><p>The Corolla rides better on broken roads and offers more rear headroom. The Civic counters with superior seats and cabin design.</p><h2>Running costs</h2><p>Parts parity is close; fuel economy slightly favours the Corolla. Insurance is higher on the Civic.</p><h2>Resale</h2><p>No contest — the Corolla depreciates slowest of any car in Pakistan.</p><h2>Verdict</h2><p><strong>Buy the Civic</strong> if you love driving. <strong>Buy the Corolla</strong> if you love your future self''s bank balance.</p>',
- 'uploads/cars/honda-civic.jpg','published',0,933,'2026-08-10 09:00:00',NULL),
+(3,2,NULL,3,'Civic Si vs Golf GTI: The Affordable Enthusiast Battle','civic-si-vs-golf-gti-2026',
+ 'One has a manual and a limited-slip differential. The other has 41 more pound-feet and hatchback practicality. America''s best budget driver''s car, decided.',
+ '<p>Under $35,000, two cars still take driving seriously: the Honda Civic Si and the Volkswagen Golf GTI. Both start around $30K, both seat four, both sip premium fuel — and they could not feel more different.</p><h2>Powertrain</h2><p>The GTI''s 2.0T makes 241 hp and 273 lb-ft to the Si''s 200 hp and 192 — but the Honda offers something VW no longer does in the GTI: no automatic option at all. The six-speed manual with rev-matching is standard and wonderful.</p><h2>Chassis</h2><p>The Si corners flatter thanks to its limited-slip differential; the GTI rides better and feels more premium at 8/10ths.</p><h2>Running costs</h2><p>The Si returns up to 37 MPG highway and holds resale value obsessively well. The GTI''s DCT is quicker but the Si is the long-term ownership play.</p><h2>Verdict</h2><p><strong>Buy the Si</strong> if you love rowing gears. <strong>Buy the GTI</strong> if you want a single car that does everything.</p>',
+ 'uploads/cars/vw-golf-gti.jpg','published',0,1180,'2026-08-10 09:00:00',NULL),
 
-(2, NULL, 5, 'EV Ownership in Pakistan: What You Need to Know Before Going Electric', 'ev-ownership-pakistan-guide',
- 'Charging at home, import duties, running costs and the honest realities of driving electric in Pakistan today.',
- '<p>Import duties make EVs expensive to buy, but absurdly cheap to run. A Model 3 costs about PKR 4 per km in electricity at domestic rates — a third of what a Corolla burns in fuel.</p><h2>Charging at home</h2><p>Any EV can charge from a regular socket overnight, but a proper 7 kW wallbox turns 8 hours into 3. You will need an electrician to verify your load — most homes manage a 7 kW circuit easily.</p><h2>Public charging</h2><p>Fast-charging corridors exist on the M-2 and M-9, and the network is growing — but plan intercity trips around it. This is the single biggest lifestyle change.</p><h2>Battery life</h2><p>Modern packs retain 85%+ capacity after 200,000 km. Heat management matters more in Pakistan''s climate, so prefer liquid-cooled packs (Tesla, BMW, Hyundai).</p><h2>Who should buy one</h2><p>If you have home charging and a second car for long trips, an EV is genuinely practical today.</p>',
- 'uploads/cars/tesla-model-3.jpg','published',0,1101,'2026-07-28 09:00:00',
- '[{"q":"How much does it cost to charge an EV at home in Pakistan?","a":"At roughly PKR 60/unit domestic slab, a full Model 3 charge (~75 kWh usable) costs about PKR 4,500 for ~550 km — under PKR 9 per litre-equivalent running cost."}]'),
+(4,2,NULL,5,'EV Ownership in America: What You Need to Know Before Going Electric','ev-ownership-america-guide',
+ 'Home charging costs, the federal tax credit, cold-weather range and the honest math of driving electric in the US today.',
+ '<p>The math on electric cars in America has never been better: residential electricity averages about 16 cents per kWh nationally, which works out to roughly 5 cents per mile in a Model 3 — a third of what a 30-MPG gas car costs at $3.50/gallon.</p><h2>Home charging is the whole game</h2><p>A 240V Level 2 charger ($500–$1,200 installed, sometimes offset by utility rebates) adds about 30 miles of range per hour. If you can charge at home, public charging becomes a road-trip-only concern.</p><h2>The federal tax credit</h2><p>Credit eligibility changes with sourcing rules — always check the IRS Clean Vehicle list before you buy. Leases frequently qualify regardless, which is why so many EV shoppers lease.</p><h2>Cold weather</h2><p>Expect 20–30% range loss in a Midwest winter. Heat-pump-equipped cars (standard on Tesla, optional elsewhere) recover much of it.</p><h2>Who should buy one</h2><p>If you have home charging and a second car for the occasional 500-mile day, an EV is genuinely cheaper to own than most gas cars today.</p>',
+ 'uploads/cars/tesla-model-3.jpg','published',0,1890,'2026-07-28 09:00:00',
+ '[{"q":"How much does it cost to charge an EV at home?","a":"At the national average of ~16¢/kWh, a full Model 3 charge costs about $12 and covers 363 miles — around 3–5 cents per mile."},{"q":"Do EVs qualify for the $7,500 tax credit?","a":"It depends on current IRS sourcing rules; check the IRS Clean Vehicle list. Leased EVs often qualify through the manufacturer."}]'),
 
-(2, NULL, 4, '5 Summer Maintenance Tips Every Car Needs in Pakistan', 'summer-car-maintenance-tips',
- '50°C road temperatures punish batteries, tyres and coolant. Five checks that prevent the most common summer breakdowns.',
- '<p>Pakistani summers kill car batteries faster than anything else. Have yours load-tested before June — most fail between the third and fourth summer.</p><h2>1. Battery health</h2><p>Heat accelerates chemical wear. If your battery is 3+ years old, test it; replacements before summer are cheaper than a towing bill after.</p><h2>2. Coolant, not just water</h2><p>Plain water boils. Use the correct premix coolant and check levels cold — never open a hot radiator cap.</p><h2>3. Tyre pressure rises with heat</h2><p>Check pressures cold, monthly. Overinflated tyres on 55°C tarmac are blowout candidates on the motorway.</p><h2>4. AC service</h2><p>A gas top-up and condenser clean can drop cabin temperatures by 6–8°C and cut fuel-wasting compressor strain.</p><h2>5. Wipers and washer</h2><p>Monsoon follows summer. Replace cracked blades now.</p>',
- 'uploads/general/hero.jpg','published',0,742,'2026-07-15 09:00:00',NULL),
+(5,2,NULL,4,'5 Summer Maintenance Tips Every Car Needs','summer-car-maintenance-tips',
+ 'Interstate heat punishes batteries, tires and coolant. Five checks that prevent the most common summer breakdowns in America.',
+ '<p>Summer road-trip season is also roadside-assistance season. A little prevention beats waiting for a tow on I-40 in July.</p><h2>1. Battery health</h2><p>Heat kills batteries faster than cold. If yours is 3+ years old, most auto-parts stores will load-test it free.</p><h2>2. Coolant, not just water</h2><p>Verify the coolant level cold and confirm the mix matches your owner''s manual. Never open a hot radiator cap.</p><h2>3. Tire pressure rises with heat</h2><p>Check pressures cold, monthly — overinflated tires on 120°F asphalt are blowout candidates. Don''t forget the spare.</p><h2>4. A/C service</h2><p>A refrigerant top-up and condenser cleaning can drop cabin temps 6–10°F and cut compressor strain.</p><h2>5. Wipers and washer fluid</h2><p>Afternoon thunderstorms deserve working wipers. Replace cracked blades and top up washer fluid.</p>',
+ 'uploads/general/hero.jpg','published',0,960,'2026-07-15 09:00:00',NULL),
 
-(1, 4, 1, 'Kia Sportage 2026: New Prices, Trims and What Changed', 'kia-sportage-2026-prices-trims',
- 'Kia reshuffles the Sportage line-up for 2026 — here is what each trim adds and which one is worth your money.',
- '<p>Kia Pakistan has trimmed the Sportage range to three variants, cutting the entry price slightly while making the panoramic roof standard across the line-up.</p><h2>The line-up</h2><ul><li><strong>Alpha:</strong> 2.0L + 6AT, fabric seats, standard safety kit</li><li><strong>Sportage:</strong> adds panoramic roof, smart key, rear camera</li><li><strong>AWD:</strong> all-wheel drive, ventilated seats, ADAS suite</li></ul><h2>What changed</h2><p>Wireless CarPlay is now standard, the grill is restyled, and Kia claims improved sound insulation — which our first drive confirmed.</p><h2>Which to buy</h2><p>The mid trim is the sweet spot unless you genuinely need AWD for northern trips.</p>',
- 'uploads/cars/kia-sportage.jpg','published',0,869,'2026-08-30 09:00:00',NULL),
+(6,1,9,1,'Kia Sportage 2026: Trims, Prices and What Changed','kia-sportage-2026-trims-prices',
+ 'Kia reshuffles the Sportage lineup for 2026 — here is what each trim adds and which one is worth your money.',
+ '<p>Kia has streamlined the Sportage range for 2026, making the hybrid available on more trims and adding X-Line styling packages across the board.</p><h2>The lineup</h2><ul><li><strong>LX:</strong> 2.5L + 8AT, full safety suite, 12.3-inch screen</li><li><strong>EX:</strong> adds hybrid option, power liftgate, blind-spot view monitor</li><li><strong>X-Pro:</strong> AWD, all-terrain tires, locking center differential</li><li><strong>SX-Prestige:</strong> panoramic roof, ventilated seats, Harman Kardon</li></ul><h2>What changed</h2><p>Wireless CarPlay is standard now, the grill is restyled, and highway driving assist works on more road types.</p><h2>Which to buy</h2><p>The EX Hybrid. It keeps the important kit and returns 43 MPG combined — the X-Pro''s off-road hardware is wasted unless your GPS regularly loses pavement.</p>',
+ 'uploads/cars/kia-sportage.jpg','published',0,1240,'2026-08-30 09:00:00',NULL),
 
-(1, NULL, 3, 'How to Check a Used Car Before Buying in Pakistan', 'used-car-inspection-checklist-pakistan',
- 'Meter tampering, flood damage and accident repairs — a practical 20-minute checklist before you hand over cash.',
- '<p>The used market is full of honest cars and cleverly disguised lemons. This 20-minute inspection catches 90% of the common tricks.</p><h2>Paperwork first</h2><p>Match the chassis and engine numbers to the book. Verify token tax history and that the seller''s CNIC matches the owner''s.</p><h2>Meter tampering</h2><p>Compare odometer readings with service records and pedal wear. A 40,000 km car with shiny brake pedals and a worn driver''s bolster has stories.</p><h2>Flood damage</h2><p>Look under carpets, check seat-rail bolts for rust, and smell for damp. Test every electrical switch.</p><h2>Accident repairs</h2><p>Run a magnet (or look for waviness) along panels — filler doesn''t lie. Panel gaps should be even.</p><h2>The test drive</h2><p>Listen for suspension knocks on rough roads, feel for steering pull, and brake hard once from 60 km/h on empty road.</p>',
- 'uploads/cars/suzuki-alto.jpg','published',0,1367,'2026-06-20 09:00:00',NULL);
+(7,1,NULL,3,'How to Inspect a Used Car Before Buying','used-car-inspection-checklist',
+ 'Title washing, flood cars and accident repairs — a practical 20-minute checklist before you hand over cash.',
+ '<p>The used market is full of honest cars and cleverly disguised lemons. This 20-minute inspection catches 90% of the common tricks.</p><h2>Paperwork first</h2><p>Match the VIN on the dash, door jamb and title. Run the VIN through NICB.gov (free theft/flood check) and pull a vehicle-history report.</p><h2>Odometer fraud</h2><p>Compare mileage with service records, pedal wear and tire age codes. A 40,000-mile car with worn bolsters and bald pedals has stories.</p><h2>Flood damage</h2><p>Lift carpets, check seat-rail bolts for rust, and smell for damp. Test every switch — flood cars hide in electronics.</p><h2>Accident repairs</h2><p>Look for uneven panel gaps and paint texture differences. A paint-depth gauge ($30) finds filler a magnet misses on aluminum panels.</p><h2>The test drive</h2><p>Listen for suspension knocks, feel for steering pull, and brake firmly once from 60 mph. Then pay $150–$200 for a pre-purchase inspection — the best money in car buying.</p>',
+ 'uploads/cars/chevrolet-tahoe.jpg','published',0,1690,'2026-06-20 09:00:00',NULL);
 
 INSERT INTO article_categories (article_id, category_id) VALUES
 (1,3),(2,2),(2,1),(3,3),(4,5),(5,4),(6,1),(7,3);
 INSERT INTO article_tags (article_id, tag_id) VALUES
-(1,4),(1,6),(1,10),(1,12),(2,1),(2,11),(3,1),(3,2),(3,11),(4,8),(4,12),(5,13),(6,4),(6,13),(7,15),(7,14);
+(1,1),(1,11),(1,9),(1,8),(2,1),(2,12),(2,16),(3,2),(3,8),(3,12),(4,5),(4,14),(4,18),(4,16),(5,14),(6,10),(6,11),(7,17);
 
 -- ── Comments (moderated) ─────────────────────────────────────
 DROP TABLE IF EXISTS comments;
@@ -397,9 +412,9 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO comments (article_id, author_name, author_email, body, status) VALUES
-(1,'Bilal R.','bilal@example.com','Great comparison! I would add the Seltis to the under-8 list though — it deserves a mention.','approved'),
-(1,'Sana K.','sana@example.com','MG HS resale has actually improved a lot this year, worth updating the article.','approved'),
-(4,'Hamza','hamza@example.com','What about solar charging for EVs? Panels are getting cheap.','pending');
+(1,'Mike R.','mike@example.com','Great comparison! I''d add the Honda CR-V to the compact list though — it deserves a mention.','approved'),
+(1,'Jennifer K.','jen@example.com','The RAV4 hybrid really is that good. We average 39 MPG in real-world driving.','approved'),
+(4,'Dave','dave@example.com','What about solar charging for EVs? Panels are getting cheap enough to matter.','pending');
 
 -- ── CMS pages ────────────────────────────────────────────────
 DROP TABLE IF EXISTS pages;
@@ -418,10 +433,10 @@ CREATE TABLE pages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO pages (title, slug, content, show_in_footer, sort_order) VALUES
-('About Us','about-us','<h2>Who we are</h2><p>AutoPulse is an independent automotive publication. We catalogue specifications, track prices and review the cars that matter to local buyers — without dealership pressure or advertising spin.</p><h2>How we work</h2><p>Every specification in our database is checked against manufacturer documentation, and prices are updated as the market moves. Review verdicts are our own.</p><h2>Contact</h2><p>Corrections and tips are welcome via the <a href="/contact">contact page</a>.</p>',1,1),
-('Privacy Policy','privacy-policy','<h2>Information we collect</h2><p>We collect the minimum needed to operate the site: anonymous analytics (if enabled), and the name/email you choose to provide when commenting or contacting us.</p><h2>How we use it</h2><p>Comments are published after moderation; your email is never displayed or sold. Newsletter subscriptions are used only to send updates and can be cancelled anytime.</p><h2>Cookies</h2><p>We use a single session cookie for site functionality (such as the comment form security token) and, when analytics is enabled, the provider''s cookies.</p><h2>Third-party ads</h2><p>Advertising partners may use cookies to serve relevant ads. You can control this via your browser or your ad provider''s opt-out page.</p>',1,2),
-('Terms & Conditions','terms-and-conditions','<h2>Use of content</h2><p>Articles and specifications are provided for personal, non-commercial use. Reproduction requires written permission and attribution.</p><h2>Accuracy</h2><p>We work hard to keep prices and specifications current, but they change frequently. Always confirm final figures with an authorised dealer.</p><h2>Comments</h2><p>You are responsible for what you post. We remove spam, abuse and misleading content at our discretion.</p><h2>Liability</h2><p>AutoPulse accepts no liability for decisions made based on site content.</p>',1,3),
-('Disclaimer','disclaimer','<p>All prices shown are indicative ex-factory or estimated import figures in PKR and may change without notice. Fuel economy figures are manufacturer claims or editorial estimates; real-world results vary with driving style, load and fuel quality.</p><p>Vehicle availability and specifications differ by market. This site is not affiliated with any manufacturer or dealership.</p>',1,4);
+('About Us','about-us','<h2>Who we are</h2><p>AutoPulse is an independent automotive publication based in the United States. We catalogue specifications, track prices and review the cars that matter to American buyers — without dealership pressure or advertising spin.</p><h2>How we work</h2><p>Every specification in our database is checked against manufacturer documentation, and prices reflect MSRP plus destination unless noted. Review verdicts are our own.</p><h2>Contact</h2><p>Corrections and tips are welcome via the <a href="/contact">contact page</a>.</p>',1,1),
+('Privacy Policy','privacy-policy','<h2>Information we collect</h2><p>We collect the minimum needed to operate the site: anonymous analytics (if enabled), and the name/email you choose to provide when commenting or contacting us.</p><h2>How we use it</h2><p>Comments are published after moderation; your email is never displayed or sold. Newsletter subscriptions are used only to send updates and can be cancelled anytime.</p><h2>Cookies</h2><p>We use a single session cookie for site functionality (such as the comment form security token) and, when analytics is enabled, the provider''s cookies.</p><h2>Third-party ads</h2><p>Advertising partners may use cookies to serve relevant ads. You can control this via your browser settings or the Network Advertising Initiative opt-out page.</p><h2>Your rights</h2><p>US state residents (including California under CCPA/CPRA) may request access to or deletion of their personal information via the contact page.</p>',1,2),
+('Terms & Conditions','terms-and-conditions','<h2>Use of content</h2><p>Articles and specifications are provided for personal, non-commercial use. Reproduction requires written permission and attribution.</p><h2>Accuracy</h2><p>We work hard to keep prices and specifications current, but they change frequently. Always confirm final figures with an authorized dealer.</p><h2>Comments</h2><p>You are responsible for what you post. We remove spam, abuse and misleading content at our discretion.</p><h2>Liability</h2><p>AutoPulse accepts no liability for decisions made based on site content.</p>',1,3),
+('Disclaimer','disclaimer','<p>All prices shown are manufacturer suggested retail prices (MSRP) including estimated destination charges unless otherwise noted, and exclude taxes, title, license and dealer fees. Fuel economy figures are EPA estimates; your results will vary with driving conditions and style.</p><p>Vehicle availability and specifications differ by state and trim. This site is not affiliated with any manufacturer or dealership.</p>',1,4);
 
 -- ── Menus ────────────────────────────────────────────────────
 DROP TABLE IF EXISTS menu_items;
@@ -450,9 +465,9 @@ INSERT INTO menu_items (menu_id, parent_id, label, url, sort_order) VALUES
 (1,NULL,'Cars','cars',2),
 (1,2,'All Cars','cars',1),
 (1,2,'Compare Cars','compare',2),
-(1,2,'SUVs','category/suv',3),
+(1,2,'SUVs & Crossovers','category/suv',3),
 (1,2,'Sedans','category/sedan',4),
-(1,2,'Hatchbacks','category/hatchback',5),
+(1,2,'Trucks','category/trucks',5),
 (1,2,'Electric Cars','category/electric',6),
 (1,NULL,'Articles','articles',3),
 (1,9,'News','category/car-news',1),
@@ -512,7 +527,7 @@ CREATE TABLE contact_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO contact_messages (name, email, subject, message) VALUES
-('Ayesha Tariq','ayesha@example.com','Price correction — Civic RS','Hi! The Civic RS price listed seems slightly outdated; dealer quoted me a higher figure yesterday. Could you double-check? Thanks!');
+('Ashley Thompson','ashley@example.com','Price correction — Model 3','Hi! The Model 3 Long Range price listed seems slightly outdated; my local dealer quoted a different number yesterday. Could you double-check? Thanks!');
 
 -- ── Media library ────────────────────────────────────────────
 DROP TABLE IF EXISTS media;
@@ -536,18 +551,20 @@ CREATE TABLE newsletter_subscribers (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 INSERT INTO media (filename, path, size_bytes, uploaded_by) VALUES
 ('bmw-330i.jpg', 'uploads/cars/bmw-330i.jpg', 186223, 1),
-('changan-oshan-x7.jpg', 'uploads/cars/changan-oshan-x7.jpg', 245672, 1),
+('chevrolet-tahoe.jpg', 'uploads/cars/chevrolet-tahoe.jpg', 256667, 1),
+('ford-f-150.jpg', 'uploads/cars/ford-f-150.jpg', 211324, 1),
+('ford-mustang-gt.jpg', 'uploads/cars/ford-mustang-gt.jpg', 192205, 1),
 ('honda-civic.jpg', 'uploads/cars/honda-civic.jpg', 217864, 1),
 ('hyundai-tucson.jpg', 'uploads/cars/hyundai-tucson.jpg', 200830, 1),
+('jeep-grand-cherokee.jpg', 'uploads/cars/jeep-grand-cherokee.jpg', 245672, 1),
 ('kia-sportage.jpg', 'uploads/cars/kia-sportage.jpg', 174648, 1),
-('mg-hs.jpg', 'uploads/cars/mg-hs.jpg', 194670, 1),
-('suzuki-alto.jpg', 'uploads/cars/suzuki-alto.jpg', 248245, 1),
 ('tesla-model-3.jpg', 'uploads/cars/tesla-model-3.jpg', 239026, 1),
-('toyota-corolla.jpg', 'uploads/cars/toyota-corolla.jpg', 163707, 1),
-('toyota-fortuner.jpg', 'uploads/cars/toyota-fortuner.jpg', 256667, 1),
+('toyota-camry.jpg', 'uploads/cars/toyota-camry.jpg', 163707, 1),
+('toyota-rav4.jpg', 'uploads/cars/toyota-rav4.jpg', 243295, 1),
+('vw-golf-gti.jpg', 'uploads/cars/vw-golf-gti.jpg', 248245, 1),
+('vw-tiguan.jpg', 'uploads/cars/vw-tiguan.jpg', 194670, 1),
 ('hero.jpg', 'uploads/general/hero.jpg', 174648, 1);
 
 SET foreign_key_checks = 1;

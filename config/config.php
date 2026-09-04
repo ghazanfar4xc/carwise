@@ -23,7 +23,7 @@ define('DB_PASS', 'autopulse');
 define('DB_CHARSET', 'utf8mb4');
 
 // Site defaults (most values can be overridden from Admin → Settings)
-define('SITE_TIMEZONE', 'Asia/Karachi');
-define('DEFAULT_CURRENCY', 'PKR');
+define('SITE_TIMEZONE', 'America/New_York');
+define('DEFAULT_CURRENCY', 'USD');
 define('ITEMS_PER_PAGE', 12);
 define('UPLOAD_MAX_BYTES', 5 * 1024 * 1024); // 5 MB per image

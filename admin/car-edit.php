@@ -202,7 +202,7 @@ include __DIR__ . '/includes/header.php';
                     <label for="c-body">Body type</label>
                     <select id="c-body" name="body_type" class="select">
                         <?php $curBody = (string)($_POST['body_type'] ?? $car['body_type'] ?? 'Sedan'); ?>
-                        <?php foreach (['Sedan', 'Hatchback', 'SUV', 'Crossover', 'Coupe', 'Pickup', 'Van'] as $bt): ?>
+                        <?php foreach (['Sedan', 'Hatchback', 'SUV', 'Crossover', 'Coupe', 'Truck', 'Van'] as $bt): ?>
                             <option <?= $curBody === $bt ? 'selected' : '' ?>><?= $bt ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -282,26 +282,26 @@ include __DIR__ . '/includes/header.php';
             <div class="panel-head"><h2>Performance &amp; economy</h2></div>
             <div class="form-row cols-3">
                 <div class="form-field"><label for="s-hp">Power (hp)</label><input type="number" id="s-hp" name="power_hp" class="input" min="0" value="<?= spec_val('power_hp', $specs) ?>"></div>
-                <div class="form-field"><label for="s-nm">Torque (Nm)</label><input type="number" id="s-nm" name="torque_nm" class="input" min="0" value="<?= spec_val('torque_nm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-acc">0–100 km/h (s)</label><input type="number" step="0.1" id="s-acc" name="acceleration_s" class="input" min="0" value="<?= spec_val('acceleration_s', $specs) ?>"></div>
-                <div class="form-field"><label for="s-top">Top speed (km/h)</label><input type="number" id="s-top" name="top_speed_kmh" class="input" min="0" value="<?= spec_val('top_speed_kmh', $specs) ?>"></div>
-                <div class="form-field"><label for="s-tank">Fuel tank (L)</label><input type="number" id="s-tank" name="fuel_tank_l" class="input" min="0" value="<?= spec_val('fuel_tank_l', $specs) ?>"></div>
-                <div class="form-field"><label for="s-city">City economy (km/l)</label><input type="number" step="0.1" id="s-city" name="mileage_city_kml" class="input" min="0" value="<?= spec_val('mileage_city_kml', $specs) ?>"></div>
-                <div class="form-field"><label for="s-hwy">Highway economy (km/l)</label><input type="number" step="0.1" id="s-hwy" name="mileage_highway_kml" class="input" min="0" value="<?= spec_val('mileage_highway_kml', $specs) ?>"></div>
+                <div class="form-field"><label for="s-nm">Torque (lb-ft)</label><input type="number" id="s-nm" name="torque_nm" class="input" min="0" value="<?= spec_val('torque_nm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-acc">0–60 mph (s)</label><input type="number" step="0.1" id="s-acc" name="acceleration_s" class="input" min="0" value="<?= spec_val('acceleration_s', $specs) ?>"></div>
+                <div class="form-field"><label for="s-top">Top speed (mph)</label><input type="number" id="s-top" name="top_speed_kmh" class="input" min="0" value="<?= spec_val('top_speed_kmh', $specs) ?>"></div>
+                <div class="form-field"><label for="s-tank">Fuel tank (gal)</label><input type="number" id="s-tank" name="fuel_tank_l" class="input" min="0" value="<?= spec_val('fuel_tank_l', $specs) ?>"></div>
+                <div class="form-field"><label for="s-city">City economy (mpg)</label><input type="number" step="0.1" id="s-city" name="mileage_city_kml" class="input" min="0" value="<?= spec_val('mileage_city_kml', $specs) ?>"></div>
+                <div class="form-field"><label for="s-hwy">Highway economy (mpg)</label><input type="number" step="0.1" id="s-hwy" name="mileage_highway_kml" class="input" min="0" value="<?= spec_val('mileage_highway_kml', $specs) ?>"></div>
                 <div class="form-field"><label for="s-batt">Battery (kWh)</label><input type="number" step="0.1" id="s-batt" name="battery_kwh" class="input" min="0" value="<?= spec_val('battery_kwh', $specs) ?>"></div>
-                <div class="form-field"><label for="s-range">Electric range (km)</label><input type="number" id="s-range" name="range_km" class="input" min="0" value="<?= spec_val('range_km', $specs) ?>"></div>
+                <div class="form-field"><label for="s-range">Electric range (mi, EPA)</label><input type="number" id="s-range" name="range_km" class="input" min="0" value="<?= spec_val('range_km', $specs) ?>"></div>
             </div>
         </section>
         <section class="panel">
             <div class="panel-head"><h2>Dimensions, weight &amp; capacity</h2></div>
             <div class="form-row cols-3">
-                <div class="form-field"><label for="s-len">Length (mm)</label><input type="number" id="s-len" name="length_mm" class="input" min="0" value="<?= spec_val('length_mm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-wid">Width (mm)</label><input type="number" id="s-wid" name="width_mm" class="input" min="0" value="<?= spec_val('width_mm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-hei">Height (mm)</label><input type="number" id="s-hei" name="height_mm" class="input" min="0" value="<?= spec_val('height_mm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-wb">Wheelbase (mm)</label><input type="number" id="s-wb" name="wheelbase_mm" class="input" min="0" value="<?= spec_val('wheelbase_mm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-gc">Ground clearance (mm)</label><input type="number" id="s-gc" name="ground_clearance_mm" class="input" min="0" value="<?= spec_val('ground_clearance_mm', $specs) ?>"></div>
-                <div class="form-field"><label for="s-weight">Curb weight (kg)</label><input type="number" id="s-weight" name="curb_weight_kg" class="input" min="0" value="<?= spec_val('curb_weight_kg', $specs) ?>"></div>
-                <div class="form-field"><label for="s-boot">Boot space (L)</label><input type="number" id="s-boot" name="boot_space_l" class="input" min="0" value="<?= spec_val('boot_space_l', $specs) ?>"></div>
+                <div class="form-field"><label for="s-len">Length (in)</label><input type="number" id="s-len" name="length_mm" class="input" min="0" value="<?= spec_val('length_mm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-wid">Width (in)</label><input type="number" id="s-wid" name="width_mm" class="input" min="0" value="<?= spec_val('width_mm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-hei">Height (in)</label><input type="number" id="s-hei" name="height_mm" class="input" min="0" value="<?= spec_val('height_mm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-wb">Wheelbase (in)</label><input type="number" id="s-wb" name="wheelbase_mm" class="input" min="0" value="<?= spec_val('wheelbase_mm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-gc">Ground clearance (in)</label><input type="number" id="s-gc" name="ground_clearance_mm" class="input" min="0" value="<?= spec_val('ground_clearance_mm', $specs) ?>"></div>
+                <div class="form-field"><label for="s-weight">Curb weight (lbs)</label><input type="number" id="s-weight" name="curb_weight_kg" class="input" min="0" value="<?= spec_val('curb_weight_kg', $specs) ?>"></div>
+                <div class="form-field"><label for="s-boot">Cargo space (cu ft)</label><input type="number" id="s-boot" name="boot_space_l" class="input" min="0" value="<?= spec_val('boot_space_l', $specs) ?>"></div>
                 <div class="form-field"><label for="s-seats">Seats</label><input type="number" id="s-seats" name="seating" class="input" min="1" max="9" value="<?= spec_val('seating', $specs) ?>"></div>
                 <div class="form-field"><label for="s-doors">Doors</label><input type="number" id="s-doors" name="doors" class="input" min="1" max="8" value="<?= spec_val('doors', $specs) ?>"></div>
             </div>

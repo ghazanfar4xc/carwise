@@ -23,6 +23,7 @@ $themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catc
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?>">
+<noscript><style>.reveal, .reveal > * { opacity: 1 !important; transform: none !important; }</style></noscript>
 <?php if (setting('custom_css')): ?><style><?= setting('custom_css') /* admin-controlled, trusted */ ?></style><?php endif; ?>
 <?php if (setting('google_analytics_id')): ?>
 <script async src="https://www.googletagmanager.com/gtag/js?id=<?= e(setting('google_analytics_id')) ?>"></script>
@@ -36,7 +37,7 @@ $themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catc
 <header class="site-header" id="site-header">
     <div class="container header-bar">
         <a href="<?= e(url('')) ?>" class="logo" aria-label="<?= e($siteName) ?> — home">
-            <img src="<?= e(url(setting('logo') ?: 'assets/images/logo.svg')) ?>" alt="<?= e($siteName) ?>" width="176" height="40">
+            <?php render_logo('logo-svg logo-header', 36) ?>
         </a>
 
         <nav class="nav-links" aria-label="Main navigation" id="nav-links">

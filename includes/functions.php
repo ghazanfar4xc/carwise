@@ -365,3 +365,32 @@ function human_size(int $bytes): string
 {
     return $bytes > 1048576 ? round($bytes / 1048576, 1) . ' MB' : max(1, (int)($bytes / 1024)) . ' KB';
 }
+
+/* ── Site logo ─────────────────────────────────────────────────────── */
+
+/**
+ * Default brand logo, inlined so `currentColor` adapts to light/dark themes.
+ * If the admin uploaded a custom logo, render it as an <img> instead.
+ */
+function render_logo(string $class = 'logo-svg', int $height = 36): void
+{
+    $logo = setting('logo');
+    if ($logo !== '' && $logo !== 'assets/images/logo.svg' && is_file(dirname(__DIR__) . '/' . ltrim($logo, '/'))) {
+        echo '<img src="' . e(url($logo)) . '" alt="' . e(setting('site_name', 'AutoPulse')) . '" style="height:' . (int)$height . 'px;width:auto">';
+        return;
+    }
+    // inline SVG (unique tachometer + pulse mark)
+    $gid = 'apb' . preg_replace('/[^a-z0-9]/i', '', $class);
+    echo '<svg class="' . e($class) . '" viewBox="0 0 188 52" role="img" aria-label="' . e(setting('site_name', 'AutoPulse')) . '">'
+       . '<defs><linearGradient id="' . $gid . '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16283e"/><stop offset="1" stop-color="#0b1524"/></linearGradient></defs>'
+       . '<rect x="1" y="2" width="48" height="48" rx="13" fill="url(#' . $gid . ')"/>'
+       . '<path d="M11 37a14.5 14.5 0 1 1 28 0" fill="none" stroke="#7f93aa" stroke-width="3" stroke-linecap="round" opacity=".9"/>'
+       . '<path d="M35.8 24.9a14.5 14.5 0 0 1 3.2 12.1" fill="none" stroke="#e43849" stroke-width="3" stroke-linecap="round"/>'
+       . '<line x1="25" y1="35" x2="36" y2="20.5" stroke="#e43849" stroke-width="3.4" stroke-linecap="round"/>'
+       . '<circle cx="25" cy="35" r="3.1" fill="#fff"/>'
+       . '<text x="60" y="33" font-family="\'Barlow Condensed\',\'Arial Narrow\',Arial,sans-serif" font-weight="700" font-size="27" letter-spacing="1.5" fill="currentColor">AUTO</text>'
+       . '<text x="116" y="33" font-family="\'Barlow Condensed\',\'Arial Narrow\',Arial,sans-serif" font-weight="700" font-size="27" letter-spacing="1.5" fill="#d1252f">PULSE</text>'
+       . '<path d="M61 42h22l5-7 7 13 5-10 4 5h68" fill="none" stroke="#d1252f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>'
+       . '</svg>';
+    unset($height);
+}

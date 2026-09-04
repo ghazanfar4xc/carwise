@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="login-body">
 <div class="login-card">
-    <img src="<?= e(url(setting('logo') ?: 'assets/images/logo.svg')) ?>" alt="<?= e(setting('site_name', 'AutoPulse')) ?>" width="160" height="36">
+    <?php render_logo('logo-svg logo-login', 34) ?>
     <h1>Welcome back</h1>
     <p class="login-sub">Sign in to manage <?= e(setting('site_name', 'AutoPulse')) ?></p>
 

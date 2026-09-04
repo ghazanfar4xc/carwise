@@ -17,7 +17,7 @@ $socials = array_filter([
 <footer class="site-footer">
     <div class="container footer-grid">
         <div class="footer-col footer-about">
-            <img src="<?= e(url(setting('logo') ?: 'assets/images/logo.svg')) ?>" alt="<?= e($siteName) ?>" width="160" height="36" loading="lazy">
+            <?php render_logo('logo-svg logo-footer', 32) ?>
             <p><?= e(setting('footer_about', 'Your trusted source for car specifications, prices, reviews and automotive news.')) ?></p>
             <div class="footer-contact">
                 <?php if (setting('contact_email')): ?><a href="mailto:<?= e(setting('contact_email')) ?>"><?= e(setting('contact_email')) ?></a><?php endif; ?>

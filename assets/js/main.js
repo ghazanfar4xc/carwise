@@ -201,7 +201,11 @@
         const io = new IntersectionObserver((entries) => entries.forEach(en => {
             if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); }
         }), { threshold: 0.08 });
-        revealEls.forEach(el => io.observe(el));
+        revealEls.forEach(el => {
+            // stagger grid children (used by CSS as a transition-delay)
+            Array.from(el.children).forEach((c, i) => c.style.setProperty('--i', Math.min(i, 8)));
+            io.observe(el);
+        });
     } else {
         revealEls.forEach(el => el.classList.add('visible'));
     }

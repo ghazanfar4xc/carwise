@@ -4,8 +4,8 @@ seo_default_schema();
 
 $sections = json_decode(setting('homepage_sections'), true) ?: [
     ['key' => 'hero', 'label' => 'Hero', 'enabled' => 1, 'head' => ''],
-    ['key' => 'latest_cars', 'label' => 'Latest Cars', 'enabled' => 1, 'head' => 'Latest Cars'],
     ['key' => 'latest_articles', 'label' => 'Latest Articles', 'enabled' => 1, 'head' => 'Latest Articles'],
+    ['key' => 'latest_cars', 'label' => 'Latest Cars', 'enabled' => 1, 'head' => 'Latest Cars'],
     ['key' => 'popular_cars', 'label' => 'Popular Cars', 'enabled' => 1, 'head' => 'Popular Cars'],
     ['key' => 'brands', 'label' => 'Brands', 'enabled' => 1, 'head' => 'Browse by Brand'],
     ['key' => 'compare_cta', 'label' => 'Compare CTA', 'enabled' => 1, 'head' => ''],
@@ -14,7 +14,6 @@ $sections = json_decode(setting('homepage_sections'), true) ?: [
     ['key' => 'newsletter', 'label' => 'Newsletter', 'enabled' => 1, 'head' => ''],
 ];
 
-$featured = articles_query(['featured' => 1, 'per' => 3])['items'];
 $latestCars = cars_query(['per' => 6])['items'];
 $popular = popular_cars(6);
 $latestArticles = articles_query(['per' => 6])['items'];
@@ -48,13 +47,6 @@ foreach ($sections as $sec):
         </div>
     </div>
 </section>
-<?php if ($featured): ?>
-<section class="section" aria-label="Featured article">
-    <div class="container">
-        <?php article_card(array_merge($featured[0], ['excerpt' => $featured[0]['excerpt']]), false, 'article-card-featured'); ?>
-    </div>
-</section>
-<?php endif; ?>
 <?php ad_slot('home_top', 'container'); ?>
 <?php break;
 

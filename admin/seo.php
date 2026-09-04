@@ -17,9 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         cache_forget('sitemap');
         flash_set('success', 'SEO defaults saved.');
     } elseif ($action === 'redirect_save') {
-        $old = '/' . trim(ltrim(post('old_path'), '/'));
-        $new = trim(post('new_path'));
-        if ($old !== '/' && $new !== '') {
+        // store paths WITHOUT a leading slash (router looks them up that way)
+        $old = trim(trim(post('old_path')), '/');
+        $new = trim(trim(post('new_path')), '/');
+        if ($old !== '' && $new !== '') {
             db()->prepare('INSERT INTO redirects (old_path, new_path, status_code) VALUES (?, ?, ?)
                            ON DUPLICATE KEY UPDATE new_path = VALUES(new_path), status_code = VALUES(status_code)')
                 ->execute([$old, ltrim($new, '/'), (int)post('status_code') === 302 ? 302 : 301]);

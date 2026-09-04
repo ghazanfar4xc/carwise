@@ -66,6 +66,17 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 ('footer_about', 'AutoPulse is an independent automotive publication covering car specifications, prices, reviews and news — built for people who research before they buy.'),
 ('maintenance_mode', '0'),
 ('comments_enabled', '1'),
+('hero_title', 'Find your next car with confidence.'),
+('hero_text', 'Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the showroom.'),
+('hero_cta_label', 'Browse Cars'),
+('hero_cta_url', 'cars'),
+('hero_cta2_label', 'Compare Models'),
+('hero_cta2_url', 'compare'),
+('compare_cta_title', 'Can''t decide? Let the specs decide.'),
+('compare_cta_text', 'Put up to three cars side by side — price, power, economy and dimensions — and see the real differences highlighted automatically.'),
+('compare_cta_btn', 'Start Comparing'),
+('newsletter_title', 'Never miss an update'),
+('newsletter_text', 'New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.'),
 ('homepage_sections', '[{"key":"hero","label":"Hero","enabled":1,"head":""},{"key":"latest_articles","label":"Latest Articles","enabled":1,"head":"Latest Articles"},{"key":"latest_cars","label":"Latest Cars","enabled":1,"head":"Latest Cars"},{"key":"popular_cars","label":"Popular Cars","enabled":1,"head":"Popular Cars"},{"key":"brands","label":"Brands","enabled":1,"head":"Browse by Brand"},{"key":"compare_cta","label":"Compare CTA","enabled":1,"head":""},{"key":"news","label":"News","enabled":1,"head":"Latest Automotive News"},{"key":"guides","label":"Buying Guides","enabled":1,"head":"Buying Guides"},{"key":"newsletter","label":"Newsletter","enabled":1,"head":""}]');
 
 -- ── Categories (article + car types) ─────────────────────────

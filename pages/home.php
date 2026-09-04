@@ -34,11 +34,15 @@ foreach ($sections as $sec):
     <div class="hero-bg"><img src="<?= e(img_url(setting('hero_image') ?: 'uploads/general/hero.jpg')) ?>" alt="" width="1920" height="1080" fetchpriority="high"></div>
     <div class="container hero-inner">
         <span class="hero-kicker"><?= e(setting('tagline', 'Cars · Specs · Prices · Reviews')) ?></span>
-        <h1>Find your next car with confidence.</h1>
-        <p>Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the showroom.</p>
+        <h1><?= e(setting('hero_title', 'Find your next car with confidence.')) ?></h1>
+        <p><?= e(setting('hero_text', 'Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the showroom.')) ?></p>
         <div class="hero-cta">
-            <a href="<?= e(url('cars')) ?>" class="btn btn-primary btn-lg">Browse Cars</a>
-            <a href="<?= e(url('compare')) ?>" class="btn btn-lg" style="background:rgba(255,255,255,.12);color:#fff">Compare Models</a>
+            <?php if (setting('hero_cta_label', 'Browse Cars') !== ''): ?>
+                <a href="<?= e(url(setting('hero_cta_url', 'cars'))) ?>" class="btn btn-primary btn-lg"><?= e(setting('hero_cta_label', 'Browse Cars')) ?></a>
+            <?php endif; ?>
+            <?php if (setting('hero_cta2_label', 'Compare Models') !== ''): ?>
+                <a href="<?= e(url(setting('hero_cta2_url', 'compare'))) ?>" class="btn btn-lg" style="background:rgba(255,255,255,.12);color:#fff"><?= e(setting('hero_cta2_label', 'Compare Models')) ?></a>
+            <?php endif; ?>
         </div>
         <div class="hero-stats">
             <div class="hero-stat"><b><?= (int)$totalCars ?>+</b><span>Models catalogued</span></div>
@@ -100,10 +104,10 @@ foreach ($sections as $sec):
     <div class="container">
         <div class="compare-cta reveal">
             <div>
-                <h2>Can't decide? Let the specs decide.</h2>
-                <p>Put up to three cars side by side — price, power, economy and dimensions — and see the real differences highlighted automatically.</p>
+                <h2><?= e(setting('compare_cta_title', "Can't decide? Let the specs decide.")) ?></h2>
+                <p><?= e(setting('compare_cta_text', 'Put up to three cars side by side — price, power, economy and dimensions — and see the real differences highlighted automatically.')) ?></p>
             </div>
-            <a href="<?= e(url('compare')) ?>" class="btn btn-primary btn-lg">Start Comparing</a>
+            <a href="<?= e(url('compare')) ?>" class="btn btn-primary btn-lg"><?= e(setting('compare_cta_btn', 'Start Comparing')) ?></a>
         </div>
     </div>
 </section>
@@ -136,8 +140,8 @@ foreach ($sections as $sec):
     <div class="container">
         <div class="newsletter-box reveal">
             <div>
-                <h2>Never miss an update</h2>
-                <p>New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.</p>
+                <h2><?= e(setting('newsletter_title', 'Never miss an update')) ?></h2>
+                <p><?= e(setting('newsletter_text', 'New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.')) ?></p>
             </div>
             <form class="newsletter-form" id="newsletter-form" action="<?= e(url('api/newsletter.php')) ?>" novalidate>
                 <label class="sr-only" for="newsletter-email">Email address</label>

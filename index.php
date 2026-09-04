@@ -74,11 +74,11 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 if (BASE_URL !== '' && str_starts_with($uri, BASE_URL)) $uri = substr($uri, strlen(BASE_URL));
 $path = trim(rawurldecode($uri), '/');
 
-/* Managed redirects (Module 20) — exact path matches */
+/* Managed redirects (Module 20) — exact path matches (with or without leading slash) */
 if ($path !== '' && !str_contains($path, '/api/')) {
     try {
-        $st = db()->prepare('SELECT new_path, status_code FROM redirects WHERE old_path = ? LIMIT 1');
-        $st->execute([$path]);
+        $st = db()->prepare('SELECT new_path, status_code FROM redirects WHERE old_path IN (?, ?) LIMIT 1');
+        $st->execute([$path, '/' . $path]);
         if ($redir = $st->fetch()) {
             header('Location: ' . url($redir['new_path']), true, (int)$redir['status_code'] ?: 301);
             exit;

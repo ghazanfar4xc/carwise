@@ -45,7 +45,8 @@ include __DIR__ . '/../includes/header.php';
                 <label for="f-body">Body type</label>
                 <select id="f-body" name="body" class="select">
                     <option value="">Any body</option>
-                    <?php foreach (['SUV', 'Sedan', 'Hatchback', 'Crossover', 'Pickup'] as $bt): ?>
+                    <?php $bodies = db()->query('SELECT DISTINCT body_type FROM car_models WHERE body_type IS NOT NULL AND status = "published" ORDER BY body_type')->fetchAll(PDO::FETCH_COLUMN); ?>
+                    <?php foreach ($bodies as $bt): ?>
                         <option value="<?= e($bt) ?>" <?= $filters['body'] === $bt ? 'selected' : '' ?>><?= e($bt) ?></option>
                     <?php endforeach; ?>
                 </select>

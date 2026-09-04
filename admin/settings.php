@@ -25,8 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'head'  => mb_substr((string)($_POST['section_head'][$i] ?? ''), 0, 100),
             ];
         }
-        save_settings(['homepage_sections' => json_encode(array_values($sections), JSON_UNESCAPED_UNICODE)]);
-        flash_set('success', 'Homepage layout saved.');
+        save_settings([
+            'homepage_sections' => json_encode(array_values($sections), JSON_UNESCAPED_UNICODE),
+            'hero_title'     => mb_substr(post('hero_title'), 0, 150),
+            'hero_text'      => mb_substr(post('hero_text'), 0, 300),
+            'hero_cta_label' => mb_substr(post('hero_cta_label'), 0, 60),
+            'hero_cta_url'   => mb_substr(post('hero_cta_url'), 0, 190),
+            'hero_cta2_label' => mb_substr(post('hero_cta2_label'), 0, 60),
+            'hero_cta2_url'   => mb_substr(post('hero_cta2_url'), 0, 190),
+            'compare_cta_title' => mb_substr(post('compare_cta_title'), 0, 150),
+            'compare_cta_text'  => mb_substr(post('compare_cta_text'), 0, 300),
+            'compare_cta_btn'   => mb_substr(post('compare_cta_btn'), 0, 60),
+            'newsletter_title' => mb_substr(post('newsletter_title'), 0, 150),
+            'newsletter_text'  => mb_substr(post('newsletter_text'), 0, 300),
+        ]);
+        flash_set('success', 'Homepage content saved.');
     } elseif ($action === 'contact') {
         save_settings([
             'contact_email'   => mb_substr(post('contact_email'), 0, 190),
@@ -112,6 +125,29 @@ function img_picker_setting(string $name, string $label, string $current): void
 <div class="tab-panel" data-panel="homepage" hidden>
     <form method="post" class="admin-form panel">
         <?= csrf_field() ?><input type="hidden" name="action" value="homepage">
+        <div class="panel-head"><h2>Hero section</h2></div>
+        <div class="form-row cols-2">
+            <div class="form-field"><label for="h-title">Headline</label><input type="text" id="h-title" name="hero_title" class="input input-lg" value="<?= e(setting('hero_title', 'Find your next car with confidence.')) ?>"></div>
+            <div class="form-field"><label for="h-text">Supporting text</label><input type="text" id="h-text" name="hero_text" class="input" value="<?= e(setting('hero_text', 'Independent specifications, honest reviews and up-to-date prices — everything you need before you visit the showroom.')) ?>"></div>
+        </div>
+        <div class="form-row cols-2">
+            <div class="form-field"><label for="h-cta1">Primary button label</label><input type="text" id="h-cta1" name="hero_cta_label" class="input" value="<?= e(setting('hero_cta_label', 'Browse Cars')) ?>"><p class="hint">Leave empty to hide the button.</p></div>
+            <div class="form-field"><label for="h-cta1u">Primary button link</label><input type="text" id="h-cta1u" name="hero_cta_url" class="input" value="<?= e(setting('hero_cta_url', 'cars')) ?>"></div>
+            <div class="form-field"><label for="h-cta2">Secondary button label</label><input type="text" id="h-cta2" name="hero_cta2_label" class="input" value="<?= e(setting('hero_cta2_label', 'Compare Models')) ?>"></div>
+            <div class="form-field"><label for="h-cta2u">Secondary button link</label><input type="text" id="h-cta2u" name="hero_cta2_url" class="input" value="<?= e(setting('hero_cta2_url', 'compare')) ?>"></div>
+        </div>
+        <p class="hint" style="margin-bottom:1.2rem">Hero background image &amp; kicker text: Settings → General (hero image) and the site tagline.</p>
+
+        <div class="panel-head"><h2>Compare &amp; newsletter sections</h2></div>
+        <div class="form-row cols-2">
+            <div class="form-field"><label for="cc-title">Compare CTA heading</label><input type="text" id="cc-title" name="compare_cta_title" class="input" value="<?= e(setting('compare_cta_title', "Can't decide? Let the specs decide.")) ?>"></div>
+            <div class="form-field"><label for="cc-btn">Compare button label</label><input type="text" id="cc-btn" name="compare_cta_btn" class="input" value="<?= e(setting('compare_cta_btn', 'Start Comparing')) ?>"></div>
+            <div class="form-field"><label for="cc-text">Compare CTA text</label><input type="text" id="cc-text" name="compare_cta_text" class="input" value="<?= e(setting('compare_cta_text', 'Put up to three cars side by side — price, power, economy and dimensions — and see the real differences highlighted automatically.')) ?>"></div>
+            <div class="form-field"><label for="nl-title">Newsletter heading</label><input type="text" id="nl-title" name="newsletter_title" class="input" value="<?= e(setting('newsletter_title', 'Never miss an update')) ?>"></div>
+            <div class="form-field"><label for="nl-text">Newsletter text</label><input type="text" id="nl-text" name="newsletter_text" class="input" value="<?= e(setting('newsletter_text', 'New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.')) ?>"></div>
+        </div>
+
+        <div class="panel-head"><h2>Section order &amp; visibility</h2></div>
         <p class="result-count">Toggle sections on/off, change their order and override headings. Changes apply to the homepage immediately.</p>
         <table class="admin-table">
             <thead><tr><th>Order</th><th>Section</th><th>Custom heading (optional)</th><th>Visible</th></tr></thead>

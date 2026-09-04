@@ -74,6 +74,7 @@ $themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catc
         </div>
     </div>
 </header>
+<?php ad_slot('header', 'ad-header'); ?>
 
 <!-- Mobile navigation drawer -->
 <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>

@@ -27,12 +27,9 @@ $socials = array_filter([
         <nav class="footer-col" aria-label="Footer navigation">
             <h3>Explore</h3>
             <ul>
-                <li><a href="<?= e(url('cars')) ?>">All Cars</a></li>
-                <li><a href="<?= e(url('brands')) ?>">Car Brands</a></li>
-                <li><a href="<?= e(url('articles')) ?>">Articles &amp; News</a></li>
-                <li><a href="<?= e(url('compare')) ?>">Compare Cars</a></li>
-                <li><a href="<?= e(url('search')) ?>">Search</a></li>
-                <li><a href="<?= e(url('contact')) ?>">Contact Us</a></li>
+                <?php foreach (menu_tree('main') as $item): ?>
+                    <li><a href="<?= e(str_starts_with($item['url'], 'http') ? $item['url'] : url($item['url'])) ?>"><?= e($item['label']) ?></a></li>
+                <?php endforeach; ?>
             </ul>
         </nav>
         <nav class="footer-col" aria-label="Categories">

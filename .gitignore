@@ -1,0 +1,14 @@
+# Runtime artifacts (never commit)
+cache/*
+!cache/.htaccess
+!cache/.gitkeep
+uploads/media/*
+!uploads/media/.gitkeep
+*.log
+error_log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

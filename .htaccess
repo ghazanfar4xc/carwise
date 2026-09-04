@@ -1,0 +1,60 @@
+# ── AutoPulse — Apache configuration (InfinityFree compatible) ────────
+AddDefaultCharset UTF-8
+DirectoryIndex index.php
+Options -Indexes
+
+# ── Block web access to internal folders (PHP can still include them) ─
+RewriteEngine On
+RewriteRule ^(config|includes|sql|cache)(/|$) - [F,L]
+
+# ── Dynamic SEO files ─────────────────────────────────────────────────
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+RewriteRule ^robots\.txt$ robots.php [L]
+
+# ── Front controller routing ──────────────────────────────────────────
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^ index.php [QSA,L]
+
+# ── Friendly error pages ──────────────────────────────────────────────
+ErrorDocument 404 /index.php
+ErrorDocument 403 /index.php?error=403
+
+# ── Security headers ──────────────────────────────────────────────────
+<IfModule mod_headers.c>
+	Header set X-Content-Type-Options "nosniff"
+	Header set X-Frame-Options "SAMEORIGIN"
+	Header set Referrer-Policy "strict-origin-when-cross-origin"
+	Header set X-XSS-Protection "0"
+</IfModule>
+
+# ── Deny dotfiles and SQL dumps ───────────────────────────────────────
+<FilesMatch "^\.|\.(sql|log|md|ini)$">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order allow,deny
+		Deny from all
+	</IfModule>
+</FilesMatch>
+
+# ── Compression & browser caching ─────────────────────────────────────
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresByType text/css "access plus 7 days"
+	ExpiresByType application/javascript "access plus 7 days"
+	ExpiresByType image/jpeg "access plus 30 days"
+	ExpiresByType image/png "access plus 30 days"
+	ExpiresByType image/webp "access plus 30 days"
+	ExpiresByType image/svg+xml "access plus 30 days"
+</IfModule>
+
+# ── Force HTTPS (uncomment ONLY after the SSL certificate is active on InfinityFree) ──
+# RewriteCond %{HTTPS} !=on
+# RewriteCond %{HTTP:X-Forwarded-Proto} !https
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

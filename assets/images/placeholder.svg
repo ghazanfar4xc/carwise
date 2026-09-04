@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Placeholder image">
+  <rect width="640" height="400" fill="#e8ecf1"/>
+  <g fill="none" stroke="#aab5c2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M150 235 190 165h180l60 70" />
+    <path d="M120 235h360c8 0 14 6 14 14v22H106v-22c0-8 6-14 14-14z"/>
+    <circle cx="200" cy="273" r="22" fill="#e8ecf1"/>
+    <circle cx="410" cy="273" r="22" fill="#e8ecf1"/>
+    <path d="M230 165v-18h90v18"/>
+  </g>
+  <text x="320" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#8a96a5">Image coming soon</text>
+</svg>

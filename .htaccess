@@ -1,7 +1,6 @@
 # ── AutoPulse — Apache configuration (InfinityFree compatible) ────────
 AddDefaultCharset UTF-8
 DirectoryIndex index.php
-Options -Indexes
 
 # ── Block web access to internal folders (PHP can still include them) ─
 RewriteEngine On
@@ -12,8 +11,9 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^robots\.txt$ robots.php [L]
 
 # ── Front controller routing ──────────────────────────────────────────
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+# Real files are served directly; directory URLs fall through to the
+# front controller (no 'Options' directive — not allowed on InfinityFree)
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 RewriteRule ^ index.php [QSA,L]
 

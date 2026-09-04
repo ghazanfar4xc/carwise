@@ -28,19 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dup->execute($id ? [$username, $email, $id] : [$username, $email]);
             if ((int)$dup->fetchColumn() > 0) {
                 flash_set('error', 'Username or email already in use.');
-            } elseif ($id) {
-                if ($password !== '') {
-                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ?, password_hash = ? WHERE id = ?')
-                        ->execute([$username, $displayName, $slug, $bio, $avatar, $email, $role, password_hash($password, PASSWORD_DEFAULT), $id]);
-                } else {
-                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ? WHERE id = ?')
-                        ->execute([$username, $displayName, $slug, $bio, $avatar, $email, $role, $id]);
-                }
-                flash_set('success', 'User updated.');
             } else {
-                db()->prepare('INSERT INTO users (username, display_name, slug, bio, avatar, email, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-                    ->execute([$username, $displayName, $slug, $bio, $avatar, $email, password_hash($password, PASSWORD_DEFAULT), $role]);
-                flash_set('success', 'User created.');
+                $data = [$username, $displayName, $slug, $bio, $avatar, $email, $role];
+                if ($id) {
+                    if ($password !== '') { $data[] = password_hash($password, PASSWORD_DEFAULT); }
+                    $data[] = $id;
+                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ?'
+                        . ($password !== '' ? ', password_hash = ?' : '') . ' WHERE id = ?')->execute($data);
+                    flash_set('success', 'User updated.');
+                } else {
+                    $data[] = password_hash($password, PASSWORD_DEFAULT); // required on create (validated above)
+                    db()->prepare('INSERT INTO users (username, display_name, slug, bio, avatar, email, role, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+                        ->execute($data);
+                    flash_set('success', 'User created.');
+                }
             }
         }
     } elseif ($action === 'delete' && (int)post('id')) {

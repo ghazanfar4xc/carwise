@@ -9,7 +9,11 @@ $siteName  = setting('site_name', 'AutoPulse');
 $tagline   = setting('tagline');
 $menu      = menu_tree('main');
 $topCats   = get_categories('article');
-$themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t})();</script>';
+$themeMode = setting('theme_mode', 'auto');
+$fallback  = $themeMode === 'auto'
+    ? '(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")'
+    : json_encode($themeMode); // '"light"' or '"dark"'
+$themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(!t){t=' . $fallback . '}document.documentElement.dataset.theme=t})();</script>';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +27,7 @@ $themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catc
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?>">
+<?= theme_custom_css() /* Admin → Appearance overrides */ ?>
 <noscript><style>.reveal, .reveal > * { opacity: 1 !important; transform: none !important; }</style></noscript>
 <?php if (setting('custom_css')): ?><style><?= setting('custom_css') /* admin-controlled, trusted */ ?></style><?php endif; ?>
 <?php if (setting('google_analytics_id')): ?>

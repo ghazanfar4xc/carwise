@@ -5,7 +5,21 @@ require_admin('seo');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = post('action');
-    if ($action === 'defaults') {
+    if ($action === 'gsc') {
+        // Accept a full meta tag OR just the content value
+        $meta = post('google_verification');
+        if (stripos($meta, 'google-site-verification') !== false && preg_match('/content=["\']([^"\']+)["\']/i', $meta, $m)) {
+            $meta = $m[1];
+        }
+        $file = preg_replace('/[^A-Za-z0-9._\-]/', '', post('gsc_file_name')); // case matters to Google
+        if ($file !== '' && !str_ends_with($file, '.html')) $file .= '.html';
+        save_settings([
+            'google_verification' => mb_substr(trim($meta), 0, 150),
+            'gsc_file_name'       => $file,
+        ]);
+        cache_forget('sitemap');
+        flash_set('success', 'Google Search Console settings saved.');
+    } elseif ($action === 'defaults') {
         save_settings([
             'meta_description'    => mb_substr(post('meta_description'), 0, 300),
             'og_image'            => post('og_image'),
@@ -43,6 +57,42 @@ $ADMIN_TITLE = 'SEO';
 include __DIR__ . '/includes/header.php';
 ?>
 <section class="panel">
+    <div class="panel-head"><h2>Connect to Google Search Console</h2></div>
+    <ol class="gsc-steps">
+        <li>Open <a href="https://search.google.com/search-console" target="_blank" rel="noopener">search.google.com/search-console</a> → <strong>Add property</strong> → “URL prefix” → enter <strong><?= e(abs_url('/')) ?></strong></li>
+        <li>Verify ownership — either method works:
+            <ul>
+                <li><strong>HTML tag</strong> → paste the whole <code>&lt;meta …&gt;</code> tag (or just its content) in the field below and Save.</li>
+                <li><strong>HTML file</strong> → enter the file name Google gives you (e.g. <code>google1a2b3c.html</code>) below and Save — the site will serve it automatically at your root.</li>
+            </ul>
+        </li>
+        <li>Back in Search Console press <strong>Verify</strong>.</li>
+        <li>Submit your sitemap: in the left menu open <strong>Sitemaps</strong> and enter <code><?= e(ltrim(parse_url(abs_url('sitemap.xml'), PHP_URL_PATH), '/')) ?></code></li>
+    </ol>
+    <form method="post" class="admin-form">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="gsc">
+        <div class="form-row cols-2">
+            <div class="form-field">
+                <label for="g-meta">Verification meta tag or content value</label>
+                <input type="text" id="g-meta" name="google_verification" class="input" value="<?= e(setting('google_verification')) ?>" placeholder='<meta name="google-site-verification" content="…"> or the content string'>
+                <?php if (setting('google_verification')): ?>
+                    <p class="hint">Live tag: <code>&lt;meta name="google-site-verification" content="<?= e(setting('google_verification')) ?>"&gt;</code></p>
+                <?php endif; ?>
+            </div>
+            <div class="form-field">
+                <label for="g-file">Verification file name (HTML file method)</label>
+                <input type="text" id="g-file" name="gsc_file_name" class="input" value="<?= e(setting('gsc_file_name')) ?>" placeholder="google1a2b3c.html">
+                <?php if (setting('gsc_file_name')): ?>
+                    <p class="hint">Served at: <a href="<?= e(abs_url(setting('gsc_file_name'))) ?>" target="_blank"><?= e(abs_url(setting('gsc_file_name'))) ?></a> ✓</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Search Console settings</button>
+    </form>
+</section>
+
+<section class="panel">
     <div class="panel-head"><h2>Default SEO &amp; verification</h2></div>
     <form method="post" class="admin-form">
         <?= csrf_field() ?>
@@ -71,7 +121,6 @@ include __DIR__ . '/includes/header.php';
         </div>
         <div class="form-row cols-3">
             <div class="form-field"><label for="s-ga">Google Analytics ID</label><input type="text" id="s-ga" name="google_analytics_id" class="input" value="<?= e(setting('google_analytics_id')) ?>" placeholder="G-XXXXXXX"></div>
-            <div class="form-field"><label for="s-gv">Google Search Console verification</label><input type="text" id="s-gv" name="google_verification" class="input" value="<?= e(setting('google_verification')) ?>"></div>
             <div class="form-field"><label for="s-bv">Bing verification</label><input type="text" id="s-bv" name="bing_verification" class="input" value="<?= e(setting('bing_verification')) ?>"></div>
         </div>
         <button type="submit" class="btn btn-primary">Save defaults</button>

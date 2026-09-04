@@ -90,6 +90,57 @@ function apt_destroy(string $t): void
     @unlink(dirname(__DIR__) . '/cache/apt_' . $t . '.php');
 }
 
+/* ── Theme customizer (Admin → Appearance) ─────────────────────────── */
+
+/** Lighten/darken a hex colour by percentage. */
+function adjust_brightness(string $hex, int $percent): string
+{
+    $hex = ltrim(trim($hex), '#');
+    if (strlen($hex) === 3) $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) return '#d1252f';
+    $parts = [];
+    for ($i = 0; $i < 3; $i++) {
+        $c = hexdec(substr($hex, $i * 2, 2));
+        $c = max(0, min(255, (int)round($c + 255 * $percent / 100)));
+        $parts[] = str_pad(dechex($c), 2, '0', STR_PAD_LEFT);
+    }
+    return '#' . implode('', $parts);
+}
+
+function normalize_hex(string $hex): string
+{
+    $hex = ltrim(trim($hex), '#');
+    if (strlen($hex) === 3) $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    return preg_match('/^[0-9a-fA-F]{6}$/', $hex) ? '#' . strtolower($hex) : '';
+}
+
+/**
+ * Builds the <style> override block from Appearance settings.
+ * Empty string when the theme is stock.
+ */
+function theme_custom_css(): string
+{
+    $css = '';
+    $p = normalize_hex(setting('theme_primary'));
+    $s = normalize_hex(setting('theme_secondary'));
+    if ($p !== '') {
+        $css .= ':root{--color-primary:' . $p . ';--color-primary-dark:' . adjust_brightness($p, -25)
+              . ';--color-primary-soft:' . $p . '22}'
+              . 'html[data-theme="dark"]{--color-primary:' . adjust_brightness($p, 10) . ';--color-primary-dark:' . adjust_brightness($p, 25) . '}';
+    }
+    if ($s !== '') {
+        $css .= ':root{--color-secondary:' . $s . ';--color-secondary-soft:' . adjust_brightness($s, 12) . '}'
+              . 'html[data-theme="dark"]{--color-secondary:' . adjust_brightness($s, -12) . '}';
+    }
+    $radius = setting('theme_radius');
+    if ($radius === 'sharp')    $css .= ':root{--radius-sm:2px;--radius-md:4px;--radius-lg:8px}';
+    if ($radius === 'rounded')  $css .= ':root{--radius-sm:10px;--radius-md:16px;--radius-lg:22px}';
+    if (setting('theme_chamfer', '1') === '0') $css .= '.btn-primary,.btn-dark{clip-path:none;border-radius:var(--radius-sm)}';
+    if (setting('theme_font_scale') === 'compact') $css .= 'html{font-size:95%}';
+    if (setting('theme_font_scale') === 'large')   $css .= 'html{font-size:106%}';
+    return $css === '' ? '' : '<style id="theme-custom">' . $css . '</style>';
+}
+
 function slugify(string $text): string
 {
     $text = strtolower(trim($text));

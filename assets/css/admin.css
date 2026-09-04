@@ -232,6 +232,14 @@ a { color: var(--color-primary); text-decoration: none; }
 .brand-cell img { width: 26px; height: 26px; object-fit: contain; }
 .quick-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 
+/* Appearance + GSC helpers */
+.color-field { display: flex; align-items: center; gap: 0.8rem; }
+.color-field input[type="color"] { width: 64px; height: 44px; padding: 3px; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); cursor: pointer; }
+.gsc-steps { margin: 0 0 1.2rem; padding-left: 1.3rem; }
+.gsc-steps li { margin-bottom: 0.55rem; }
+.gsc-steps ul { margin-top: 0.35rem; }
+.gsc-steps code { background: #f1f4f8; border: 1px solid var(--color-border); border-radius: 5px; padding: 1px 6px; font-size: 0.82em; }
+
 /* Alerts & toasts */
 .alert { padding: 11px 15px; border-radius: var(--radius); border: 1px solid; margin: 0 0 1rem; font-size: 0.88rem; }
 .alert-success { background: #e5f4ec; border-color: #bfe3d0; color: var(--color-success); }

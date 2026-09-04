@@ -74,6 +74,14 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 if (BASE_URL !== '' && str_starts_with($uri, BASE_URL)) $uri = substr($uri, strlen(BASE_URL));
 $path = trim(rawurldecode($uri), '/');
 
+/* Google Search Console HTML-file verification (Admin → SEO) */
+$gscFile = setting('gsc_file_name');
+if ($gscFile !== '' && $path === trim($gscFile, '/')) {
+    header('Content-Type: text/html; charset=utf-8');
+    echo 'google-site-verification: ' . $gscFile;
+    exit;
+}
+
 /* Managed redirects (Module 20) — exact path matches (with or without leading slash) */
 if ($path !== '' && !str_contains($path, '/api/')) {
     try {

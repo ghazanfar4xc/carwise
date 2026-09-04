@@ -81,9 +81,9 @@ document.getElementById('picker-files')?.addEventListener('change', async (e) =>
     const status = document.getElementById('picker-status');
     if (!e.target.files.length) return;
     status.textContent = 'Uploading…';
-    const fd = new FormData(document.getElementById('picker-upload'));
-    try {
-        const res = await fetch(location.pathname, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const fd = new FormData(document.getElementById('picker-upload'));
+            try {
+                const res = await fetch(location.pathname + location.search, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
         const json = await res.json();
         if (json.success && json.data?.length) { status.textContent = 'Uploaded ✓ — click to insert'; setTimeout(() => location.reload(), 600); }
         else status.textContent = json.message || 'Upload failed.';

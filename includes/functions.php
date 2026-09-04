@@ -35,6 +35,11 @@ function asset(string $path): string
 
 function redirect(string $path): void
 {
+    // keep preview sessions alive across admin redirects (development only)
+    if (defined('PREVIEW_APT') && PREVIEW_APT !== '' && !str_contains($path, 'apt=')
+        && str_starts_with($path, 'admin/') && !str_starts_with($path, 'admin/login')) {
+        $path .= (str_contains($path, '?') ? '&' : '?') . 'apt=' . PREVIEW_APT;
+    }
     header('Location: ' . (str_starts_with($path, 'http') ? $path : url($path)));
     exit;
 }
@@ -42,7 +47,47 @@ function redirect(string $path): void
 /** URL helper for admin-area links. */
 function admin_url(string $path = ''): string
 {
-    return url('admin/' . ltrim($path, '/'));
+    $u = url('admin/' . ltrim($path, '/'));
+    // Preview sessions (development only) carry a token so admin works
+    // inside sandboxed iframes where cookies are blocked.
+    if (defined('PREVIEW_APT') && PREVIEW_APT !== '' && !str_contains($u, 'apt=')) {
+        $u .= (str_contains($u, '?') ? '&' : '?') . 'apt=' . PREVIEW_APT;
+    }
+    return $u;
+}
+
+/* ── Preview access tokens (development only) ────────────────────────
+ * Sandboxed preview iframes block cookies, which kills PHP sessions.
+ * An ?apt= token pins the session id server-side so the admin panel
+ * stays logged in without cookies. Inactive when APP_ENV=production. */
+
+function apt_valid(string $t): bool
+{
+    if (!preg_match('/^[a-f0-9]{32}$/', $t)) return false;
+    $f = dirname(__DIR__) . '/cache/apt_' . $t . '.php';
+    if (!is_file($f)) return false;
+    $data = @unserialize((string)@file_get_contents($f));
+    return is_array($data) && ($data['expires'] ?? 0) > time();
+}
+
+function apt_create(int $userId): string
+{
+    $t = bin2hex(random_bytes(16));
+    @file_put_contents(dirname(__DIR__) . '/cache/apt_' . $t . '.php',
+        serialize(['user' => $userId, 'expires' => time() + 43200]));
+    return $t;
+}
+
+function apt_user(string $t): int
+{
+    $f = dirname(__DIR__) . '/cache/apt_' . $t . '.php';
+    $data = @unserialize((string)@file_get_contents($f));
+    return is_array($data) ? (int)($data['user'] ?? 0) : 0;
+}
+
+function apt_destroy(string $t): void
+{
+    @unlink(dirname(__DIR__) . '/cache/apt_' . $t . '.php');
 }
 
 function slugify(string $text): string

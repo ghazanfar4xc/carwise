@@ -46,6 +46,7 @@ $socials = array_filter([
                 <?php foreach ($legal as $p): ?>
                     <li><a href="<?= e(url($p['slug'])) ?>"><?= e($p['title']) ?></a></li>
                 <?php endforeach; ?>
+                <li><a href="<?= e(url('admin/login.php')) ?>" rel="nofollow">Admin</a></li>
             </ul>
             <?php if ($socials): ?>
             <div class="social-links">

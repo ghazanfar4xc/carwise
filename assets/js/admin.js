@@ -85,7 +85,7 @@
                 <div class="modal-head"><h3>Choose image</h3>
                     <button type="button" class="icon-btn" aria-label="Close picker">✕</button></div>
                 <div class="modal-body">
-                    <iframe src="${document.body.dataset.base || '/'}admin/media.php?picker=1" style="width:100%;height:62vh;border:0"></iframe>
+                    <iframe src="${document.body.dataset.base || '/'}admin/media.php?picker=1${(new URLSearchParams(location.search).get('apt') ? '&apt=' + encodeURIComponent(new URLSearchParams(location.search).get('apt')) : '')}" style="width:100%;height:62vh;border:0"></iframe>
                 </div>
             </div>`;
         document.body.appendChild(backdropEl);
@@ -197,7 +197,7 @@
                 fd.append('csrf_token', $('input[name="csrf_token"]')?.value || '');
                 fd.append('action', 'delete');
                 fd.append('id', del.dataset.id);
-                const res = await fetch(location.pathname, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const res = await fetch(location.pathname + location.search, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 if (json.success) { del.closest('.media-item')?.remove(); toast('Image deleted.', 'success'); }
                 else toast(json.message || 'Delete failed.', 'error');

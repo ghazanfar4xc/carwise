@@ -16,8 +16,26 @@ error_reporting(APP_ENV === 'development' ? E_ALL : 0);
 ini_set('display_errors', APP_ENV === 'development' ? '1' : '0');
 @ini_set('error_log', dirname(__DIR__, 2) . '/cache/error.log');
 
+/* ── Sessions ──────────────────────────────────────────────────────
+ * Preview mode (development only): if a valid ?apt= token is present,
+ * pin the PHP session id to it so the admin panel stays logged in
+ * inside sandboxed iframes where cookies are blocked. */
+$APT = (APP_ENV === 'development') ? (string)($_GET['apt'] ?? '') : '';
+if ($APT !== '' && apt_valid($APT)) {
+    define('PREVIEW_APT', $APT);
+    session_id('apt' . md5($APT));
+} else {
+    define('PREVIEW_APT', '');
+}
+
 session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax']);
 session_start();
+
+// adopt the token's user into this (possibly fresh) session
+if (PREVIEW_APT !== '' && empty($_SESSION['admin_id'])) {
+    $aptUser = apt_user(PREVIEW_APT);
+    if ($aptUser > 0) $_SESSION['admin_id'] = $aptUser;
+}
 
 $GLOBALS['site_settings'] = load_settings();
 

@@ -49,6 +49,7 @@ function article_card(array $a, bool $lazy = true, string $class = ''): void
             <h3 class="article-card-title"><a href="<?= e(article_url($a)) ?>"><?= e($a['title']) ?></a></h3>
             <p class="article-card-excerpt"><?= e(excerpt_text((string)($a['excerpt'] ?? ''), 120)) ?></p>
             <div class="meta">
+                <?php if (!empty($a['author'])): ?><span>By <?= e($a['author']) ?></span><span aria-hidden="true">·</span><?php endif; ?>
                 <span><?= e(format_date($a['published_at'])) ?></span>
                 <span aria-hidden="true">·</span>
                 <span><?= reading_time((string)$a['excerpt']) ?> min read</span>

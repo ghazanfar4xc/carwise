@@ -61,7 +61,7 @@ include __DIR__ . '/../includes/header.php';
                     <?php endif; ?>
                     <h1 style="font-family:var(--font-body);font-weight:800;line-height:1.18;font-size:clamp(1.6rem,1.2rem + 2.2vw,2.5rem)"><?= e($article['title']) ?></h1>
                     <div class="article-header-meta">
-                        <span>By <strong><?= e($article['author'] ?: 'Editorial Team') ?></strong></span>
+                        <span class="byline">By <?php if (!empty($article['author_slug'])): ?><a class="byline-link" href="<?= e(author_url(['slug' => $article['author_slug']])) ?>"><strong><?= e($article['author'] ?: 'Editorial Team') ?></strong></a><?php else: ?><strong><?= e($article['author'] ?: 'Editorial Team') ?></strong><?php endif; ?></span>
                         <span aria-hidden="true">·</span>
                         <time datetime="<?= e(date('c', strtotime($article['published_at']))) ?>"><?= e(format_date($article['published_at'])) ?></time>
                         <span aria-hidden="true">·</span>

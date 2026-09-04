@@ -90,7 +90,7 @@ $activeSlug = preg_match('~^/category/([a-z0-9-]+)~i', $reqPath, $m) ? $m[1] : n
 <div class="cat-strip">
     <div class="container cat-strip-inner">
         <span class="cat-strip-label">Browse</span>
-        <nav class="cat-strip-links" aria-label="All categories">
+        <nav class="cat-strip-links" id="cat-strip-links" aria-label="All categories">
             <?php foreach ($carCats as $c): ?>
                 <a class="cat-chip<?= $activeSlug === $c['slug'] ? ' active' : '' ?>" href="<?= e(category_url($c)) ?>"><?= e($c['name']) ?></a>
             <?php endforeach; ?>

@@ -166,6 +166,7 @@ function articles_query(array $f = []): array
     if (!empty($f['brand_slug'])) { $where[] = 'a.brand_id = (SELECT id FROM brands WHERE slug = ?)'; $params[] = $f['brand_slug']; }
     if (!empty($f['q'])) { $where[] = '(a.title LIKE ? OR a.excerpt LIKE ?)'; $params[] = "%{$f['q']}%"; $params[] = "%{$f['q']}%"; }
     if (!empty($f['featured'])) { $where[] = 'a.is_featured = 1'; }
+    if (!empty($f['author_id'])) { $where[] = 'a.user_id = ?'; $params[] = (int)$f['author_id']; }
     if (!empty($f['ids'])) { $where[] = 'a.id IN (' . implode(',', array_map('intval', (array)$f['ids'])) . ')'; }
 
     $order = ($f['sort'] ?? '') === 'popular' ? 'a.views DESC, a.id DESC' : 'a.published_at DESC, a.id DESC';
@@ -180,7 +181,8 @@ function articles_query(array $f = []): array
     $offset = ($page - 1) * $per;
 
     $sql = "SELECT a.id, a.title, a.slug, a.excerpt, a.featured_image, a.published_at, a.views, a.is_featured, a.faq,
-                   u.username AS author, c.name AS category, c.slug AS category_slug, b.name AS brand, b.slug AS brand_slug
+                   COALESCE(NULLIF(u.display_name, ''), u.username) AS author, u.slug AS author_slug, u.avatar AS author_avatar,
+                   c.name AS category, c.slug AS category_slug, b.name AS brand, b.slug AS brand_slug
             FROM articles a
             LEFT JOIN users u ON u.id = a.user_id
             LEFT JOIN categories c ON c.id = a.category_id
@@ -191,9 +193,22 @@ function articles_query(array $f = []): array
     return ['items' => $st->fetchAll(), 'total' => $total, 'page' => $page, 'pages' => (int)ceil($total / $per)];
 }
 
+function get_author(string $slug): ?array
+{
+    $st = db()->prepare('SELECT u.id, u.username, COALESCE(NULLIF(u.display_name, \'\'), u.username) AS name, u.slug, u.bio, u.avatar,
+                                u.role, u.created_at,
+                                (SELECT COUNT(*) FROM articles a WHERE a.user_id = u.id AND ' . ARTICLE_LIVE . ') AS article_count
+                         FROM users u WHERE u.slug = ? AND u.status = 1');
+    $st->execute([$slug]);
+    return $st->fetch() ?: null;
+}
+
+function author_url(array $u): string { return url('author/' . $u['slug']); }
+
 function get_article(string $slug): ?array
 {
-    $st = db()->prepare('SELECT a.*, u.username AS author, c.name AS category, c.slug AS category_slug,
+    $st = db()->prepare('SELECT a.*, COALESCE(NULLIF(u.display_name, \'\'), u.username) AS author, u.slug AS author_slug,
+                                u.avatar AS author_avatar, u.bio AS author_bio, c.name AS category, c.slug AS category_slug,
                                 b.name AS brand, b.slug AS brand_slug
                          FROM articles a
                          LEFT JOIN users u ON u.id = a.user_id

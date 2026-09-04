@@ -9,6 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)post('id');
         $username = mb_substr(post('username'), 0, 50);
         $email = mb_substr(post('email'), 0, 190);
+        $displayName = mb_substr(trim(post('display_name')), 0, 80);
+        $bio = mb_substr(trim((string)($_POST['bio'] ?? '')), 0, 2000);
+        $avatar = trim((string)($_POST['avatar'] ?? ''));
+        if ($avatar !== '' && !preg_match('#^(uploads|assets)/[\w\-./]+$#', $avatar)) $avatar = '';
+        $slug = slugify($displayName ?: $username);
         $role = post('role') === 'admin' ? 'admin' : 'editor';
         $password = (string)($_POST['password'] ?? '');
         if ($username === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -16,21 +21,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($id === 0 && mb_strlen($password) < 8) {
             flash_set('error', 'Password must be at least 8 characters.');
         } else {
+            $dupSlug = db()->prepare('SELECT COUNT(*) FROM users WHERE slug = ?' . ($id ? ' AND id != ?' : ''));
+            $dupSlug->execute($id ? [$slug, $id] : [$slug]);
+            if ((int)$dupSlug->fetchColumn() > 0) $slug .= '-' . substr(bin2hex(random_bytes(2)), 0, 3); // profile URL stays unique
             $dup = db()->prepare('SELECT COUNT(*) FROM users WHERE (username = ? OR email = ?)' . ($id ? ' AND id != ?' : ''));
             $dup->execute($id ? [$username, $email, $id] : [$username, $email]);
             if ((int)$dup->fetchColumn() > 0) {
                 flash_set('error', 'Username or email already in use.');
             } elseif ($id) {
                 if ($password !== '') {
-                    db()->prepare('UPDATE users SET username = ?, email = ?, role = ?, password_hash = ? WHERE id = ?')
-                        ->execute([$username, $email, $role, password_hash($password, PASSWORD_DEFAULT), $id]);
+                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ?, password_hash = ? WHERE id = ?')
+                        ->execute([$username, $displayName, $slug, $bio, $avatar, $email, $role, password_hash($password, PASSWORD_DEFAULT), $id]);
                 } else {
-                    db()->prepare('UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?')->execute([$username, $email, $role, $id]);
+                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ? WHERE id = ?')
+                        ->execute([$username, $displayName, $slug, $bio, $avatar, $email, $role, $id]);
                 }
                 flash_set('success', 'User updated.');
             } else {
-                db()->prepare('INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)')
-                    ->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT), $role]);
+                db()->prepare('INSERT INTO users (username, display_name, slug, bio, avatar, email, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+                    ->execute([$username, $displayName, $slug, $bio, $avatar, $email, password_hash($password, PASSWORD_DEFAULT), $role]);
                 flash_set('success', 'User created.');
             }
         }
@@ -47,11 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editing = null;
 if (get_int('edit', 0)) {
-    $st = db()->prepare('SELECT id, username, email, role, status, last_login FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, username, display_name, slug, bio, avatar, email, role, status, last_login FROM users WHERE id = ?');
     $st->execute([get_int('edit', 0)]);
     $editing = $st->fetch() ?: null;
 }
-$users = db()->query('SELECT id, username, email, role, status, last_login FROM users ORDER BY id')->fetchAll();
+$users = db()->query('SELECT id, username, display_name, email, role, status, last_login FROM users ORDER BY id')->fetchAll();
 
 $ADMIN_ACTIVE = 'users';
 $ADMIN_TITLE = 'Users';
@@ -68,6 +77,16 @@ include __DIR__ . '/includes/header.php';
         <div class="form-row cols-2">
             <div class="form-field"><label for="u-name">Username *</label><input type="text" id="u-name" name="username" class="input" required value="<?= fv('username', $editing['username'] ?? '') ?>"></div>
             <div class="form-field"><label for="u-email">Email *</label><input type="email" id="u-email" name="email" class="input" required value="<?= fv('email', $editing['email'] ?? '') ?>"></div>
+        </div>
+        <div class="form-row cols-2">
+            <div class="form-field">
+                <label for="u-dname">Display name <span class="hint" style="display:inline">— shown as the article byline</span></label>
+                <input type="text" id="u-dname" name="display_name" class="input" maxlength="80" value="<?= fv('display_name', $editing['display_name'] ?? '') ?>" placeholder="e.g. Emily Carter">
+            </div>
+            <div class="form-field">
+                <label for="u-avatar">Avatar image path</label>
+                <input type="text" id="u-avatar" name="avatar" class="input" value="<?= fv('avatar', $editing['avatar'] ?? '') ?>" placeholder="uploads/team/emily.jpg (from Media)">
+            </div>
             <div class="form-field">
                 <label for="u-role">Role</label>
                 <select id="u-role" name="role" class="select">
@@ -80,6 +99,10 @@ include __DIR__ . '/includes/header.php';
                 <input type="password" id="u-pass" name="password" class="input" <?= $editing ? '' : 'required' ?> minlength="8" autocomplete="new-password">
             </div>
         </div>
+        <div class="form-field">
+            <label for="u-bio">Author bio <span class="hint" style="display:inline">&mdash; shown on the public profile page (/author/<?= e($editing['slug'] ?? 'your-name') ?>)</span></label>
+            <textarea id="u-bio" name="bio" class="textarea" rows="3" maxlength="2000" placeholder="e.g. Senior editor covering SUVs and trucks. Based in Austin, Texas."><?= fv('bio', $editing['bio'] ?? '') ?></textarea>
+        </div>
         <button type="submit" class="btn btn-primary"><?= $editing ? 'Save user' : 'Create user' ?></button>
     </form>
 </section>
@@ -90,7 +113,7 @@ include __DIR__ . '/includes/header.php';
         <tbody>
         <?php foreach ($users as $u): ?>
             <tr>
-                <td><strong><?= e($u['username']) ?></strong> <small><?= e($u['email']) ?></small></td>
+                <td><strong><?= e($u['display_name'] ?: $u['username']) ?></strong> <small><?= e($u['username']) ?> &middot; <?= e($u['email']) ?></small></td>
                 <td><span class="status status-<?= $u['role'] ?>"><?= e($u['role']) ?></span></td>
                 <td><small><?= e($u['last_login'] ? time_ago($u['last_login']) : 'never') ?></small></td>
                 <td class="td-actions">

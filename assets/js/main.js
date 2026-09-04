@@ -278,6 +278,57 @@
     handleAjaxForm($('#comment-form'));
     handleAjaxForm($('#newsletter-form'), { inline: false });
 
+    /* ── Category strip: overflow chips collapse into a 'More' dropdown ── */
+    const catLinks = $('#cat-strip-links');
+    if (catLinks) {
+        const moreWrap = document.createElement('div');
+        moreWrap.className = 'cat-more-wrap';
+        moreWrap.hidden = true;
+        moreWrap.innerHTML = '<button type="button" class="cat-chip cat-more-btn" aria-expanded="false" aria-haspopup="true">More <span class="caret" aria-hidden="true">▾</span></button><div class="cat-more-panel" hidden></div>';
+        catLinks.appendChild(moreWrap);
+        const moreBtn = moreWrap.querySelector('.cat-more-btn');
+        const morePanel = moreWrap.querySelector('.cat-more-panel');
+
+        const closeMore = () => { morePanel.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); };
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = morePanel.hidden;
+            morePanel.hidden = !open;
+            moreBtn.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => { if (!moreWrap.contains(e.target)) closeMore(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
+
+        const layout = () => {
+            catLinks.classList.add('js');
+            morePanel.innerHTML = '';
+            const chips = [...catLinks.querySelectorAll(':scope > .cat-chip')];
+            chips.forEach(c => c.classList.remove('cat-hidden'));
+            moreWrap.hidden = true;
+            // measure with the More button shown
+            moreWrap.hidden = false;
+            const base = catLinks.getBoundingClientRect().left;
+            const limit = catLinks.clientWidth - moreWrap.offsetWidth - 6;
+            const overflow = [];
+            let cut = false;
+            for (const chip of chips) {
+                if (cut || chip.getBoundingClientRect().right - base > limit) { cut = true; overflow.push(chip); }
+            }
+            if (overflow.length) {
+                overflow.forEach(chip => {
+                    chip.classList.add('cat-hidden');
+                    morePanel.appendChild(chip.cloneNode(true));
+                });
+            } else {
+                moreWrap.hidden = true;
+            }
+        };
+        layout();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+        let rt;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 120); });
+    }
+
     /* ── Compare picks (persisted locally) + compare page ────── */
     const CMP_KEY = 'autopulse_compare';
     const getPicks = () => { try { return JSON.parse(store.get(CMP_KEY) || '[]').slice(0, 3); } catch { return []; } };
@@ -370,6 +421,20 @@
                 const safetyRow = cars.some(c => c.safety.length)
                     ? `<tr><th scope="row" class="spec-label">Safety features</th>${cars.map(c => `<td>${c.safety.length ? `<ul style="margin:0;padding-left:1.1em">${c.safety.slice(0, 6).map(s => `<li>${s}</li>`).join('')}</ul>` : '—'}</td>`).join('')}</tr>` : '';
                 $('.compare-table tbody').innerHTML = priceRow + labels.map(row).join('') + safetyRow;
+
+                // Side-by-side expert reviews: one column per car
+                const reviews = cars.filter(c => (c.overview || '').replace(/<[^>]*>/g, '').trim());
+                compareResults.insertAdjacentHTML('beforeend', `
+                    ${reviews.length ? `
+                    <section class="compare-reviews" style="grid-template-columns:repeat(${reviews.length},1fr)">
+                        <div class="section-head"><h2>Expert Reviews — Side by Side</h2></div>
+                        ${reviews.map(c => `
+                            <article class="compare-review">
+                                <h3><a href="${c.url}">${c.name}</a></h3>
+                                <div class="prose prose-sm">${c.overview}</div>
+                                <a class="btn btn-outline btn-sm" href="${c.url}">Read full review of the ${c.name}</a>
+                            </article>`).join('')}
+                    </section>` : ''}`);
                 $$('.cmp-remove', compareResults).forEach(btn => btn.addEventListener('click', () => {
                     picks = picks.filter(id => id !== parseInt(btn.dataset.id, 10));
                     setPicks(picks);

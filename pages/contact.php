@@ -1,8 +1,10 @@
 <?php
 /** AutoPulse — contact page (Module 29). AJAX submission to /api/contact.php. */
+$cp = get_page('contact'); // CMS row (Admin → Pages) — editable intro content
+
 seo_set([
-    'title' => 'Contact Us',
-    'description' => 'Get in touch with the ' . setting('site_name', 'AutoPulse') . ' team — questions, corrections, partnerships and feedback.',
+    'title'       => ($cp['seo_title'] ?? '') ?: 'Contact Us',
+    'description' => ($cp['meta_description'] ?? '') ?: ('Get in touch with the ' . setting('site_name', 'AutoPulse') . ' team — questions, corrections, partnerships and feedback.'),
 ]);
 
 include __DIR__ . '/../includes/header.php';
@@ -10,10 +12,17 @@ include __DIR__ . '/../includes/header.php';
 <header class="page-head">
     <div class="container">
         <?php render_breadcrumbs([['name' => 'Home', 'url' => ''], ['name' => 'Contact']]); ?>
-        <h1>Contact Us</h1>
-        <p>Questions, corrections or partnership ideas — we read everything.</p>
+        <h1><?= e(($cp['title'] ?? '') ?: 'Contact Us') ?></h1>
     </div>
 </header>
+
+<?php if ($cp && trim(strip_tags((string)$cp['content'])) !== ''): ?>
+<section class="section" style="padding-block:1.5rem 0">
+    <div class="container">
+        <div class="prose"><?= $cp['content'] /* admin-authored HTML (Admin → Pages → Contact Us) */ ?></div>
+    </div>
+</section>
+<?php endif; ?>
 
 <div class="section">
     <div class="container contact-layout">

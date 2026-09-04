@@ -145,6 +145,10 @@ switch ($seg[0] ?? '') {
         $page = 'contact';
         break;
 
+    case 'author':
+        if (count($seg) === 2) { $page = 'author'; $params = ['slug' => $seg[1]]; }
+        break;
+
     case 'page':
         if (count($seg) === 2) { $page = 'page'; $params = ['slug' => $seg[1]]; }
         break;

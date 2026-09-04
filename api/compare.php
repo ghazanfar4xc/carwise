@@ -8,7 +8,7 @@ $ids = array_slice(array_filter(array_map('intval', explode(',', (string)($_GET[
 if (count($ids) < 1) json_out(['success' => false, 'message' => 'No cars selected.']);
 
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
-$st = db()->prepare("SELECT c.id, c.name, c.slug, c.price, c.price_note, c.main_image, c.body_type, c.year_start, c.pros, c.cons,
+$st = db()->prepare("SELECT c.id, c.name, c.slug, c.price, c.price_note, c.main_image, c.body_type, c.year_start, c.pros, c.cons, c.overview,
                             b.name AS brand, b.slug AS brand_slug, s.*
                      FROM car_models c
                      JOIN brands b ON b.id = c.brand_id
@@ -50,6 +50,7 @@ foreach ($cars as $c) {
             'Seating'        => $c['seating'] ? $c['seating'] . ' seats' : '',
         ],
         'safety' => get_car_features((int)$c['id'])['safety'] ?? [],
+        'overview' => (string)$c['overview'], // admin-authored review HTML
     ];
 }
 

@@ -18,9 +18,13 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
+  display_name VARCHAR(80) NULL COMMENT 'public byline name',
+  slug VARCHAR(90) NULL UNIQUE COMMENT 'author profile URL: /author/{slug}',
   email VARCHAR(190) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('admin','editor') NOT NULL DEFAULT 'editor',
+  bio TEXT NULL COMMENT 'author bio (public profile page)',
+  avatar VARCHAR(255) NULL COMMENT 'avatar image path (Media library)',
   status TINYINT(1) NOT NULL DEFAULT 1,
   last_login DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -29,9 +33,13 @@ CREATE TABLE users (
 
 -- ⚠ TEMPORARY DEVELOPMENT CREDENTIALS — change immediately after first login
 -- admin / Admin@123 · editor / Editor@123
-INSERT INTO users (username, email, password_hash, role) VALUES
-('admin',  'admin@autopulse.test',  '$2y$12$hAXZf3bj9A4884NwxfDgYOXsQZgNgl3CD2TL5gMtlLY3/FwJXKnny', 'admin'),
-('editor', 'editor@autopulse.test', '$2y$12$oEPR9Y7FZDI0B9HV/nQUMOp/7SQKPNaOibt8cOXM7q1I1Hv7B6wmS', 'editor');
+INSERT INTO users (username, display_name, slug, bio, email, password_hash, role) VALUES
+('admin', 'Ghazanfar Malik', 'ghazanfar-malik',
+ 'Founder and lead editor. Covers the US new-car market, pricing trends and the shift to electric. Based in Austin, Texas.',
+ 'admin@autopulse.test', '$2y$12$hAXZf3bj9A4884NwxfDgYOXsQZgNgl3CD2TL5gMtlLY3/FwJXKnny', 'admin'),
+('editor', 'Emily Carter', 'emily-carter',
+ 'Senior editor covering SUVs, trucks and family vehicles. Fifteen years testing cars on American roads, from Texas interstates to Colorado passes.',
+ 'editor@autopulse.test', '$2y$12$oEPR9Y7FZDI0B9HV/nQUMOp/7SQKPNaOibt8cOXM7q1I1Hv7B6wmS', 'editor');
 
 -- ── Site settings ────────────────────────────────────────────
 DROP TABLE IF EXISTS settings;
@@ -436,7 +444,8 @@ INSERT INTO pages (title, slug, content, show_in_footer, sort_order) VALUES
 ('About Us','about-us','<h2>Who we are</h2><p>AutoPulse is an independent automotive publication based in the United States. We catalogue specifications, track prices and review the cars that matter to American buyers — without dealership pressure or advertising spin.</p><h2>How we work</h2><p>Every specification in our database is checked against manufacturer documentation, and prices reflect MSRP plus destination unless noted. Review verdicts are our own.</p><h2>Contact</h2><p>Corrections and tips are welcome via the <a href="/contact">contact page</a>.</p>',1,1),
 ('Privacy Policy','privacy-policy','<h2>Information we collect</h2><p>We collect the minimum needed to operate the site: anonymous analytics (if enabled), and the name/email you choose to provide when commenting or contacting us.</p><h2>How we use it</h2><p>Comments are published after moderation; your email is never displayed or sold. Newsletter subscriptions are used only to send updates and can be cancelled anytime.</p><h2>Cookies</h2><p>We use a single session cookie for site functionality (such as the comment form security token) and, when analytics is enabled, the provider''s cookies.</p><h2>Third-party ads</h2><p>Advertising partners may use cookies to serve relevant ads. You can control this via your browser settings or the Network Advertising Initiative opt-out page.</p><h2>Your rights</h2><p>US state residents (including California under CCPA/CPRA) may request access to or deletion of their personal information via the contact page.</p>',1,2),
 ('Terms & Conditions','terms-and-conditions','<h2>Use of content</h2><p>Articles and specifications are provided for personal, non-commercial use. Reproduction requires written permission and attribution.</p><h2>Accuracy</h2><p>We work hard to keep prices and specifications current, but they change frequently. Always confirm final figures with an authorized dealer.</p><h2>Comments</h2><p>You are responsible for what you post. We remove spam, abuse and misleading content at our discretion.</p><h2>Liability</h2><p>AutoPulse accepts no liability for decisions made based on site content.</p>',1,3),
-('Disclaimer','disclaimer','<p>All prices shown are manufacturer suggested retail prices (MSRP) including estimated destination charges unless otherwise noted, and exclude taxes, title, license and dealer fees. Fuel economy figures are EPA estimates; your results will vary with driving conditions and style.</p><p>Vehicle availability and specifications differ by state and trim. This site is not affiliated with any manufacturer or dealership.</p>',1,4);
+('Disclaimer','disclaimer','<p>All prices shown are manufacturer suggested retail prices (MSRP) including estimated destination charges unless otherwise noted, and exclude taxes, title, license and dealer fees. Fuel economy figures are EPA estimates; your results will vary with driving conditions and style.</p><p>Vehicle availability and specifications differ by state and trim. This site is not affiliated with any manufacturer or dealership.</p>',1,4,
+('Contact Us','contact','<p>Questions, corrections, partnership ideas or tips about the US new-car market — we read everything. Use the form below and our editorial team will get back to you within 2–3 working days.</p><p>For corrections, please include the page URL so we can fix it quickly. For advertising and partnerships, put “Partnership” in the subject line.</p>',1,5));
 
 -- ── Menus ────────────────────────────────────────────────────
 DROP TABLE IF EXISTS menu_items;

@@ -34,8 +34,11 @@ if ($urls === null) {
         foreach (db()->query('SELECT slug, updated_at FROM categories WHERE status = 1')->fetchAll() as $c) {
             $urls[] = ['loc' => abs_url('category/' . $c['slug']), 'priority' => '0.6', 'lastmod' => $c['updated_at']];
         }
-        foreach (db()->query('SELECT slug, updated_at FROM pages WHERE status = "published"')->fetchAll() as $p) {
+        foreach (db()->query('SELECT slug, updated_at FROM pages WHERE status = "published" AND slug != "contact"')->fetchAll() as $p) {
             $urls[] = ['loc' => abs_url($p['slug']), 'priority' => '0.4', 'lastmod' => $p['updated_at']];
+        }
+        foreach (db()->query('SELECT u.slug, MAX(a.updated_at) AS updated_at FROM users u JOIN articles a ON a.user_id = u.id AND ' . ARTICLE_LIVE . ' WHERE u.status = 1 AND u.slug IS NOT NULL GROUP BY u.id, u.slug')->fetchAll() as $u) {
+            $urls[] = ['loc' => abs_url('author/' . $u['slug']), 'priority' => '0.4', 'lastmod' => $u['updated_at']];
         }
         cache_set('sitemap', $urls);
     } catch (Throwable $e) {

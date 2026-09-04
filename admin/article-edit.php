@@ -79,7 +79,7 @@ $categories = get_categories(null);
 $carCats = get_categories('car');
 $articleCats = get_categories('article');
 $brands = get_brands();
-$users = db()->query('SELECT id, username FROM users WHERE status = 1')->fetchAll();
+$users = db()->query('SELECT id, username, display_name FROM users WHERE status = 1')->fetchAll();
 $allTags = db()->query('SELECT id, name FROM tags ORDER BY name')->fetchAll();
 $currentCatIds = $id ? db()->prepare('SELECT category_id FROM article_categories WHERE article_id = ?') : null;
 if ($currentCatIds) { $currentCatIds->execute([$id]); $currentCatIds = $currentCatIds->fetchAll(PDO::FETCH_COLUMN); }
@@ -115,7 +115,7 @@ include __DIR__ . '/includes/header.php';
                         <label for="a-author">Author</label>
                         <select id="a-author" name="user_id" class="select">
                             <?php foreach ($users as $u): ?>
-                                <option value="<?= (int)$u['id'] ?>" <?= (int)fv_raw('user_id', $article['user_id'] ?? null) === (int)$u['id'] ? 'selected' : '' ?>><?= e($u['username']) ?></option>
+                                <option value="<?= (int)$u['id'] ?>" <?= (int)fv_raw('user_id', $article['user_id'] ?? null) === (int)$u['id'] ? 'selected' : '' ?>><?= e(($u['display_name'] ?? '') ?: $u['username']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

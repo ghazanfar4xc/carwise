@@ -70,7 +70,7 @@ $specRows = [ // label => [value, format]
 ];
 $specGroups = [
     'Engine & Drivetrain' => ['Engine', 'Displacement', 'Fuel type', 'Transmission', 'Drive type'],
-    'Performance'         => ['Power', 'Torque', '0–100 km/h', 'Top speed'],
+    'Performance'         => ['Power', 'Torque', '0–60 mph', 'Top speed'],
     'Fuel & Economy'      => ['Fuel tank', 'City fuel economy', 'Highway fuel economy', 'Battery', 'Electric range'],
     'Dimensions & Weight' => ['Length', 'Width', 'Height', 'Wheelbase', 'Ground clearance', 'Curb weight', 'Cargo space'],
     'Capacity'            => ['Seating capacity', 'Doors'],
@@ -138,7 +138,7 @@ include __DIR__ . '/../includes/header.php';
                     ];
                     foreach ($keySpecs as [$v, $l, $u]):
                         if ($v === '' || $v === null) continue; ?>
-                        <div class="key-spec"><b><?= e($v) ?><?= $u ? ' ' . e($u) : '' ?></b><span><?= e($l) ?></span></div>
+                        <div class="key-spec"><b><?= e(spec_num($v)) ?><?= $u ? ' ' . e($u) : '' ?></b><span><?= e($l) ?></span></div>
                     <?php endforeach; ?>
                 </div>
                 <div class="cta-stack">
@@ -167,7 +167,7 @@ include __DIR__ . '/../includes/header.php';
                     <table class="spec-table">
                         <tbody>
                         <?php foreach ($rows as $label => [$val, $unit]): ?>
-                            <tr><th scope="row"><?= e($label) ?></th><td><?= e($val) ?><?= $unit ? ' ' . e($unit) : '' ?></td></tr>
+                            <tr><th scope="row"><?= e($label) ?></th><td><?= e(spec_num($val)) ?><?= $unit ? ' ' . e($unit) : '' ?></td></tr>
                         <?php endforeach; ?>
                         </tbody>
                     </table>

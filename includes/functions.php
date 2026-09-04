@@ -320,7 +320,18 @@ function format_price($val, ?string $note = ''): string
     $val = (float)$val;
     $note = (string)$note;
     if ($val <= 0) return $note !== '' ? e($note) : 'Price on request';
-    return e(setting('currency', DEFAULT_CURRENCY)) . ' ' . number_format($val);
+    $code = setting('currency', DEFAULT_CURRENCY);
+    $symbols = ['USD' => '$', 'EUR' => "\u{20AC}", 'GBP' => "\u{A3}", 'INR' => "\u{20B9}", 'PKR' => 'Rs ', 'CAD' => 'CA$', 'AUD' => 'A$'];
+    $prefix = $symbols[$code] ?? ($code !== '' ? $code . ' ' : '');
+    return e($prefix) . number_format($val);
+}
+
+/** Trim trailing ".0" from DECIMAL spec values: 53.0 -> 53, 7.2 -> 7.2 */
+function spec_num($val): string
+{
+    if ($val === null || $val === '') return '';
+    $s = (string)$val;
+    return preg_match('/^-?\d+\.0+$/', $s) ? (string)(float)$s : $s;
 }
 
 function format_date(?string $dt): string

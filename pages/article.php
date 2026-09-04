@@ -171,7 +171,7 @@ include __DIR__ . '/../includes/header.php';
                 <?php endforeach; endif; ?>
             </div>
 
-            <form id="comment-form" class="comment-form" novalidate>
+            <form id="comment-form" class="comment-form" action="<?= e(url('api/comments.php')) ?>" novalidate>
                 <?= csrf_field() ?>
                 <input type="hidden" name="article_id" value="<?= (int)$article['id'] ?>">
                 <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">

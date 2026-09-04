@@ -18,7 +18,7 @@ include __DIR__ . '/../includes/header.php';
 <div class="section">
     <div class="container contact-layout">
         <div>
-            <form id="contact-form" novalidate>
+            <form id="contact-form" action="<?= e(url('api/contact.php')) ?>" novalidate>
                 <?= csrf_field() ?>
                 <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
                 <div class="form-row cols-2">

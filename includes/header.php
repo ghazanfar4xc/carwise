@@ -9,7 +9,7 @@ $siteName  = setting('site_name', 'AutoPulse');
 $tagline   = setting('tagline');
 $menu      = menu_tree('main');
 $topCats   = get_categories('article');
-$themeInit = '<script>document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");</script>';
+$themeInit = '<script>(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t})();</script>';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +30,7 @@ $themeInit = '<script>document.documentElement.dataset.theme=localStorage.getIte
 <?php endif; ?>
 <?= setting('header_scripts') /* admin-controlled */ ?>
 </head>
-<body>
+<body data-base="<?= e(url('')) ?>">
 <a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header" id="site-header">

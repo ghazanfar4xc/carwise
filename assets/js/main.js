@@ -12,6 +12,15 @@
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
     const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Site root (works in subfolders too); set on <body data-base="…"> by PHP
+    const BASE = document.body.dataset.base || '/';
+
+    // localStorage can throw inside sandboxed iframes — never let it kill a click handler
+    const store = {
+        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode / sandbox */ } },
+    };
+
     async function fetchJSON(url, options = {}) {
         const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, ...options });
         let data = null;
@@ -47,7 +56,8 @@
         const html = document.documentElement;
         const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
         html.dataset.theme = next;
-        localStorage.setItem('theme', next);
+        store.set('theme', next);
+        btn.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
     }));
 
     /* ── Header state on scroll ──────────────────────────────── */
@@ -128,7 +138,7 @@
             try {
                 controller?.abort();
                 controller = new AbortController();
-                const json = await fetchJSON(`api/search.php?q=${encodeURIComponent(q)}`, { signal: controller.signal });
+                const json = await fetchJSON(`${BASE}api/search.php?q=${encodeURIComponent(q)}`, { signal: controller.signal });
                 const d = json.data || {};
                 items = [...(d.cars || []), ...(d.brands || []), ...(d.articles || [])];
                 if (!items.length) { suggest.innerHTML = '<div class="suggest-empty">No matches — press Enter for full search.</div>'; return; }
@@ -153,6 +163,8 @@
             } else if (e.key === 'Enter' && activeIndex >= 0) {
                 e.preventDefault();
                 links[activeIndex].click();
+            } else if (e.key === 'Enter' && input.value.trim().length >= 2) {
+                location.href = `${BASE}search?q=${encodeURIComponent(input.value.trim())}`;
             }
         });
     }
@@ -232,13 +244,13 @@
             });
             if (!valid) { toast('Please fix the highlighted fields.', 'error'); return; }
 
-            const btn = form.querySelector('[type="submit"]');
-            const original = btn?.textContent;
-            if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-            try {
-                const data = new FormData(form);
-                data.set('csrf_token', form.querySelector('[name="csrf_token"]')?.value || '');
-                const json = await fetchJSON(form.action || location.pathname + '/api/' , { method: 'POST', body: data });
+                const btn = form.querySelector('[type="submit"]');
+                const original = btn?.textContent;
+                if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+                try {
+                    const data = new FormData(form);
+                    data.set('csrf_token', form.querySelector('[name="csrf_token"]')?.value || '');
+                    const json = await fetchJSON(form.getAttribute('action') || `${BASE}api/`, { method: 'POST', body: data });
                 if (json.success) {
                     form.reset();
                     if (successFlash) toast(json.message || 'Done.', 'success');
@@ -257,22 +269,15 @@
         });
     }
 
-    // Forms post to their page-relative API endpoints
-    const apiBase = document.body.dataset.apiBase || '';
-    const contactForm = $('#contact-form');
-    if (contactForm) contactForm.action = 'api/contact.php', handleAjaxForm(contactForm);
-    const commentForm = $('#comment-form');
-    if (commentForm) commentForm.action = 'api/comments.php', handleAjaxForm(commentForm);
-    const newsletterForm = $('#newsletter-form');
-    if (newsletterForm) {
-        newsletterForm.action = 'api/newsletter.php';
-        handleAjaxForm(newsletterForm, { inline: false });
-    }
+    // AJAX forms — endpoints come from the server-rendered action attribute
+    handleAjaxForm($('#contact-form'));
+    handleAjaxForm($('#comment-form'));
+    handleAjaxForm($('#newsletter-form'), { inline: false });
 
     /* ── Compare picks (persisted locally) + compare page ────── */
     const CMP_KEY = 'autopulse_compare';
-    const getPicks = () => { try { return JSON.parse(localStorage.getItem(CMP_KEY) || '[]').slice(0, 3); } catch { return []; } };
-    const setPicks = (ids) => localStorage.setItem(CMP_KEY, JSON.stringify(ids.slice(0, 3)));
+    const getPicks = () => { try { return JSON.parse(store.get(CMP_KEY) || '[]').slice(0, 3); } catch { return []; } };
+    const setPicks = (ids) => store.set(CMP_KEY, JSON.stringify(ids.slice(0, 3)));
 
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.add-compare');
@@ -301,7 +306,7 @@
             modelSel.disabled = true;
             addBtn.disabled = true;
             try {
-                const json = await fetchJSON(`api/cars.php?brand_id=${brandSel.value}`);
+                const json = await fetchJSON(`${BASE}api/cars.php?brand_id=${brandSel.value}`);
                 modelSel.innerHTML = '<option value="">Select model…</option>' +
                     json.data.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
                 modelSel.disabled = false;
@@ -332,7 +337,7 @@
             }
             compareStatus.innerHTML = `<div class="spinner" style="margin:0 auto 1.4rem" role="status" aria-label="Loading comparison"></div>`;
             try {
-                const json = await fetchJSON(`api/compare.php?ids=${picks.join(',')}`);
+                const json = await fetchJSON(`${BASE}api/compare.php?ids=${picks.join(',')}`);
                 const cars = json.data;
                 const labels = Object.keys(cars[0]?.specs || {});
                 const row = (label) => {

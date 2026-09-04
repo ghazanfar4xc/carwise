@@ -67,7 +67,7 @@ try {
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= e(asset('css/admin.css')) ?>">
 </head>
-<body>
+<body data-base="<?= e(url('')) ?>">
 <div class="admin-shell">
     <aside class="admin-sidebar" id="admin-sidebar">
         <div class="admin-brand">

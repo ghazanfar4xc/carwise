@@ -85,7 +85,7 @@
                 <div class="modal-head"><h3>Choose image</h3>
                     <button type="button" class="icon-btn" aria-label="Close picker">✕</button></div>
                 <div class="modal-body">
-                    <iframe src="${document.body.dataset.base || ''}admin/media.php?picker=1" style="width:100%;height:62vh;border:0"></iframe>
+                    <iframe src="${document.body.dataset.base || '/'}admin/media.php?picker=1" style="width:100%;height:62vh;border:0"></iframe>
                 </div>
             </div>`;
         document.body.appendChild(backdropEl);

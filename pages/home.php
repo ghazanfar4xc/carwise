@@ -147,7 +147,7 @@ foreach ($sections as $sec):
                 <h2>Never miss an update</h2>
                 <p>New models, price changes and buying guides — straight to your inbox. No spam, unsubscribe anytime.</p>
             </div>
-            <form class="newsletter-form" id="newsletter-form" novalidate>
+            <form class="newsletter-form" id="newsletter-form" action="<?= e(url('api/newsletter.php')) ?>" novalidate>
                 <label class="sr-only" for="newsletter-email">Email address</label>
                 <input type="email" id="newsletter-email" name="email" class="input" placeholder="you@example.com" required>
                 <button type="submit" class="btn btn-primary">Subscribe</button>

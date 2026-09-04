@@ -1,5 +1,5 @@
 # Uploads: serve images only — never execute scripts from here
-Options -Indexes
+# (no 'Options' directive — InfinityFree does not allow it in .htaccess)
 <FilesMatch "\.(php|php\d|phtml|pl|py|cgi|sh|shtml)$">
 	<IfModule mod_authz_core.c>
 		Require all denied

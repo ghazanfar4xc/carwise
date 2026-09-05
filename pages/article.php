@@ -85,7 +85,9 @@ include __DIR__ . '/../includes/header.php';
                 </header>
 
                 <figure class="article-featured" style="margin-inline:0">
-                    <img src="<?= e(img_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" width="1200" height="640" fetchpriority="high">
+                    <?php $fm = media_meta((string)$article['featured_image']); ?>
+                    <img src="<?= e(img_url($article['featured_image'])) ?>" alt="<?= e($fm['alt'] ?: $article['title']) ?>" title="<?= e($fm['title']) ?>" width="1200" height="640" fetchpriority="high">
+                    <?php if ($fm['caption']): ?><figcaption style="color:var(--color-muted);font-size:var(--fs-sm);padding:.4rem 0"><?= e($fm['caption']) ?></figcaption><?php endif; ?>
                 </figure>
 
                 <?php if ($toc && count($toc) >= 3): ?>

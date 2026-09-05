@@ -111,7 +111,8 @@ include __DIR__ . '/../includes/header.php';
                 <?php if ($images): ?>
                 <div class="gallery" data-gallery>
                     <figure class="gallery-main" style="margin:0">
-                        <img id="gallery-main-img" src="<?= e(img_url($images[0]['path'])) ?>" alt="<?= e($images[0]['alt'] ?: $car['brand'] . ' ' . $car['name']) ?>" width="960" height="570" fetchpriority="high">
+                        <?php $gm = media_meta((string)$images[0]['path']); ?>
+                        <img id="gallery-main-img" src="<?= e(img_url($images[0]['path'])) ?>" alt="<?= e($images[0]['alt'] ?: ($gm['alt'] ?: $car['brand'] . ' ' . $car['name'])) ?>" width="960" height="570" fetchpriority="high">
                     </figure>
                     <?php if (count($images) > 1): ?>
                     <div class="gallery-thumbs" role="tablist" aria-label="Gallery">

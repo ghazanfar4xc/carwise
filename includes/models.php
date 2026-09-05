@@ -203,6 +203,18 @@ function get_author(string $slug): ?array
     return $st->fetch() ?: null;
 }
 
+function media_meta(string $path): array
+{
+    static $cache = [];
+    if ($path === '') return ['alt' => '', 'caption' => '', 'description' => '', 'title' => '', 'width' => null, 'height' => null];
+    if (!isset($cache[$path])) {
+        $st = db()->prepare('SELECT alt, caption, description, title, width, height FROM media WHERE path = ?');
+        $st->execute([$path]);
+        $cache[$path] = $st->fetch() ?: ['alt' => '', 'caption' => '', 'description' => '', 'title' => '', 'width' => null, 'height' => null];
+    }
+    return $cache[$path];
+}
+
 function get_sources(string $type, int $id): array
 {
     $st = db()->prepare('SELECT * FROM content_sources WHERE entity_type = ? AND entity_id = ? ORDER BY sort_order, id');

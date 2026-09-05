@@ -16,6 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         json_out(['success' => false, 'message' => 'Image not found.'], 404);
     }
+    if (post('action') === 'meta_save' && post('id')) {
+        $st = db()->prepare('UPDATE media SET alt = ?, caption = ?, description = ?, title = ? WHERE id = ?');
+        $st->execute([
+            mb_substr(trim(post('alt')), 0, 300),
+            mb_substr(trim(post('caption')), 0, 300),
+            mb_substr(trim(post('description')), 0, 500),
+            mb_substr(trim(post('title')), 0, 190),
+            (int)post('id'),
+        ]);
+        json_out(['success' => true, 'message' => 'Image SEO details saved.']);
+    }
     if (isset($_FILES['files'])) {
         $uploaded = [];
         $errors = [];
@@ -32,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($res['ok']) {
                 $size = (int)$file['size'];
                 $dims = @getimagesize(dirname(__DIR__) . '/' . $res['file']);
-                db()->prepare('INSERT INTO media (filename, path, size_bytes, uploaded_by) VALUES (?, ?, ?, ?)')
-                    ->execute([$name, $res['file'], $size, current_user()['id']]);
+                db()->prepare('INSERT INTO media (filename, path, size_bytes, uploaded_by, width, height) VALUES (?, ?, ?, ?, ?, ?)')
+                    ->execute([$name, $res['file'], $size, current_user()['id'], $dims[0] ?? null, $dims[1] ?? null]);
                 $uploaded[] = ['path' => $res['file'], 'url' => url($res['file']), 'name' => $name,
                                'size' => human_size($size), 'w' => $dims[0] ?? 0, 'h' => $dims[1] ?? 0];
             } else {
@@ -124,10 +135,26 @@ include __DIR__ . '/includes/header.php';
                 <span class="media-name" title="<?= e($m['filename']) ?>"><?= e($m['filename']) ?></span>
                 <span class="media-meta"><?= e(human_size((int)$m['size_bytes'])) ?> · <?= e(format_date($m['created_at'])) ?></span>
                 <div class="media-actions">
+                    <?= $m['alt'] === '' || $m['alt'] === null ? '<span class="tag" style="color:#b7791f">⚠ no alt</span>' : '' ?>
                     <button type="button" class="btn btn-sm btn-outline copy-path" data-path="<?= e(url($m['path'])) ?>">Copy URL</button>
+                    <button type="button" class="btn btn-sm btn-outline media-seo" data-id="<?= (int)$m['id'] ?>">SEO</button>
                     <button type="button" class="btn btn-sm btn-ghost view-img" data-src="<?= e(img_url($m['path'])) ?>">View</button>
                     <button type="button" class="btn btn-sm btn-danger media-delete" data-id="<?= (int)$m['id'] ?>">Delete</button>
                 </div>
+                <form class="media-seo-form" data-id="<?= (int)$m['id'] ?>" hidden>
+                    <div class="form-field"><label>Alt text <span class="hint" style="display:inline">— describe the image for screen readers &amp; SEO</span></label>
+                        <input type="text" name="alt" class="input" maxlength="300" value="<?= e($m['alt'] ?? '') ?>" placeholder="e.g. 2026 Toyota Camry LE Hybrid front view"></div>
+                    <div class="form-field"><label>Caption <span class="hint" style="display:inline">— shown under the image on articles</span></label>
+                        <input type="text" name="caption" class="input" maxlength="300" value="<?= e($m['caption'] ?? '') ?>"></div>
+                    <div class="form-row cols-2">
+                        <div class="form-field"><label>Title attribute</label>
+                            <input type="text" name="title" class="input" maxlength="190" value="<?= e($m['title'] ?? '') ?>"></div>
+                        <div class="form-field"><label>Description</label>
+                            <input type="text" name="description" class="input" maxlength="500" value="<?= e($m['description'] ?? '') ?>"></div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Save SEO details</button>
+                    <span class="hint seo-saved" aria-live="polite"></span>
+                </form>
             </div>
         <?php endforeach; ?>
     </div>
@@ -139,4 +166,36 @@ include __DIR__ . '/includes/header.php';
         </nav>
     <?php endif; ?>
 </section>
+<script>
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.media-seo');
+    if (btn) {
+        var form = btn.closest('.media-item').querySelector('.media-seo-form');
+        form.hidden = !form.hidden;
+    }
+});
+document.addEventListener('submit', function (e) {
+    var form = e.target.closest('.media-seo-form');
+    if (!form) return;
+    e.preventDefault();
+    var fd = new FormData(form);
+    fd.append('action', 'meta_save');
+    fd.append('id', form.dataset.id);
+    fd.append('csrf_token', document.querySelector('meta[name="csrf"]').content || '<?= e(csrf_token()) ?>');
+    var note = form.querySelector('.seo-saved');
+    note.textContent = 'Saving…';
+    fetch(location.pathname, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+            note.textContent = j.success ? '✓ Saved' : (j.message || 'Failed');
+            if (j.success) setTimeout(function () { note.textContent = ''; }, 2500);
+        })
+        .catch(function () { note.textContent = 'Failed'; });
+});
+</script>
+<style>
+.media-item { border: 1px solid var(--color-border,#e3e6eb); border-radius: 12px; padding: .6rem; background: var(--color-surface,#fff); }
+.media-seo-form { margin-top: .6rem; border-top: 1px dashed var(--color-border,#e3e6eb); padding-top: .6rem; text-align: left; }
+.media-seo-form label { font-size: .78rem; font-weight: 600; }
+</style>
 <?php include __DIR__ . '/includes/footer.php'; ?>

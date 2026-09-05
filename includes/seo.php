@@ -34,6 +34,7 @@ function seo_render(): void
 
     $siteName = setting('site_name', 'AutoPulse');
     $fullTitle = $s['title'] !== '' ? $s['title'] . ' | ' . $siteName : $siteName . (setting('tagline') ? ' — ' . setting('tagline') : '');
+    if (empty($s['canonical'])) $s['canonical'] = $_SERVER['REQUEST_URI'] ?? '/'; // per-content override may be null
     $canonical = abs_url('/' . ltrim(parse_url($s['canonical'], PHP_URL_PATH) ?: '', '/'));
     $ogImage = $s['og_image'] !== '' && str_starts_with($s['og_image'], 'http') ? $s['og_image'] : abs_url('/' . ltrim($s['og_image'], '/'));
 
@@ -47,6 +48,11 @@ function seo_render(): void
     echo '<meta property="og:description" content="' . e($s['og_desc'] ?: $s['description']) . "\">\n";
     echo '<meta property="og:url" content="' . e($canonical) . "\">\n";
     echo '<meta property="og:image" content="' . e($ogImage) . "\">\n";
+    if (($s['og_type'] ?? '') === 'article') {
+        if (!empty($s['published_time'])) echo '<meta property="article:published_time" content="' . e($s['published_time']) . '">\n';
+        if (!empty($s['modified_time'])) echo '<meta property="article:modified_time" content="' . e($s['modified_time']) . '">\n';
+        if (!empty($s['author_url'])) echo '<meta property="article:author" content="' . e($s['author_url']) . '">\n';
+    }
     echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
     echo '<meta name="twitter:title" content="' . e($s['og_title'] ?: $fullTitle) . "\">\n";
     echo '<meta name="twitter:description" content="' . e($s['og_desc'] ?: $s['description']) . "\">\n";
@@ -76,13 +82,19 @@ function seo_default_schema(): void
             'query-input' => 'required name=search_term_string',
         ],
     ]);
-    seo_jsonld([
+    $sameAs = array_values(array_filter([
+        setting('social_facebook'), setting('social_twitter'), setting('social_instagram'), setting('social_youtube'),
+    ]));
+    $org = [
         '@context' => 'https://schema.org',
         '@type'    => 'Organization',
         'name'     => $siteName,
         'url'      => abs_url('/'),
         'logo'     => abs_url(setting('logo') ?: 'assets/images/logo.svg'),
-    ]);
+    ];
+    if (setting('org_description')) $org['description'] = setting('org_description');
+    if ($sameAs) $org['sameAs'] = $sameAs;
+    seo_jsonld($org);
 }
 
 function breadcrumb_schema(array $crumbs): void

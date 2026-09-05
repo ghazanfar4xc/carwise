@@ -25,6 +25,9 @@ CREATE TABLE users (
   role ENUM('admin','editor') NOT NULL DEFAULT 'editor',
   bio TEXT NULL COMMENT 'author bio (public profile page)',
   avatar VARCHAR(255) NULL COMMENT 'avatar image path (Media library)',
+  expertise VARCHAR(255) NULL COMMENT 'comma-separated topics (Person schema)',
+  social_twitter VARCHAR(255) NULL,
+  social_linkedin VARCHAR(255) NULL,
   status TINYINT(1) NOT NULL DEFAULT 1,
   last_login DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -190,6 +193,15 @@ CREATE TABLE car_models (
   views INT UNSIGNED NOT NULL DEFAULT 0,
   seo_title VARCHAR(150) NULL,
   meta_description VARCHAR(300) NULL,
+  canonical_url VARCHAR(255) NULL,
+  og_title VARCHAR(150) NULL,
+  og_description VARCHAR(300) NULL,
+  og_image VARCHAR(255) NULL,
+  robots VARCHAR(40) NULL DEFAULT 'index, follow',
+  focus_keyword VARCHAR(120) NULL,
+  quick_answer TEXT NULL COMMENT 'AEO: 1-3 sentence direct answer',
+  last_verified_at DATETIME NULL,
+  updated_by INT UNSIGNED NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_car (brand_id, slug),
@@ -333,6 +345,17 @@ CREATE TABLE articles (
   seo_title VARCHAR(150) NULL,
   meta_description VARCHAR(300) NULL,
   canonical_url VARCHAR(255) NULL,
+  og_title VARCHAR(150) NULL,
+  og_description VARCHAR(300) NULL,
+  og_image VARCHAR(255) NULL,
+  robots VARCHAR(40) NULL DEFAULT 'index, follow',
+  focus_keyword VARCHAR(120) NULL,
+  secondary_keywords VARCHAR(500) NULL,
+  search_intent VARCHAR(40) NULL,
+  quick_answer TEXT NULL COMMENT 'AEO: 1-3 sentence direct answer',
+  last_verified_at DATETIME NULL,
+  fact_checked_by VARCHAR(120) NULL,
+  updated_by INT UNSIGNED NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_status_pub (status, published_at),
@@ -516,8 +539,39 @@ CREATE TABLE redirects (
   old_path VARCHAR(255) NOT NULL UNIQUE,
   new_path VARCHAR(255) NOT NULL,
   status_code SMALLINT UNSIGNED NOT NULL DEFAULT 301,
+  notes VARCHAR(255) NULL,
+  hits INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Sources (GEO) & Answer Blocks (AEO) ─────────────────────────
+DROP TABLE IF EXISTS content_sources;
+CREATE TABLE content_sources (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  entity_type ENUM('article','car') NOT NULL,
+  entity_id INT UNSIGNED NOT NULL,
+  name VARCHAR(190) NOT NULL,
+  url VARCHAR(255) NULL,
+  source_type ENUM('manufacturer','government','regulator','research','official_documentation','independent_testing','other') NOT NULL DEFAULT 'other',
+  published_date DATE NULL,
+  accessed_date DATE NULL,
+  notes VARCHAR(300) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  INDEX idx_entity (entity_type, entity_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS answer_blocks;
+CREATE TABLE answer_blocks (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  entity_type ENUM('article','car') NOT NULL,
+  entity_id INT UNSIGNED NOT NULL,
+  question VARCHAR(300) NOT NULL,
+  short_answer TEXT NOT NULL,
+  explanation TEXT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  INDEX idx_entity (entity_type, entity_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 INSERT INTO redirects (old_path, new_path, status_code) VALUES
 ('blog','articles',301),
@@ -579,3 +633,66 @@ INSERT INTO media (filename, path, size_bytes, uploaded_by) VALUES
 ('hero.jpg', 'uploads/general/hero.jpg', 174648, 1);
 
 SET foreign_key_checks = 1;
+
+-- ── SEO/AEO/GEO seed data (auto-301 ready, admin-editable) ──
+-- Quick answers + verification dates (generated from stored facts)
+UPDATE car_models SET quick_answer='The 2026 Toyota Camry LE Hybrid is a sedan with 225 hp and 163 lb-ft, EPA-rated at 53.0/50.0 mpg, starting at $28,995 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=1;
+UPDATE car_models SET quick_answer='The 2026 Toyota RAV4 XLE is a suv with 225 hp and 184 lb-ft, EPA-rated at 39.0/36.0 mpg, starting at $31,090 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=2;
+UPDATE car_models SET quick_answer='The 2026 Honda Civic Si is a sedan with 200 hp and 192 lb-ft, EPA-rated at 27.0/37.0 mpg, starting at $30,250 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=3;
+UPDATE car_models SET quick_answer='The 2026 Volkswagen Golf GTI is a hatchback with 241 hp and 273 lb-ft, EPA-rated at 24.0/34.0 mpg, starting at $33,125 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=4;
+UPDATE car_models SET quick_answer='The 2026 Kia Sportage X-Pro is a suv with 187 hp and 178 lb-ft, EPA-rated at 23.0/28.0 mpg, starting at $32,695 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=5;
+UPDATE car_models SET quick_answer='The 2026 Hyundai Tucson SEL is a suv with 187 hp and 178 lb-ft, EPA-rated at 25.0/31.0 mpg, starting at $30,500 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=6;
+UPDATE car_models SET quick_answer='The 2026 Volkswagen Tiguan SE is a suv with 201 hp and 207 lb-ft, EPA-rated at 26.0/33.0 mpg, starting at $30,190 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=7;
+UPDATE car_models SET quick_answer='The 2026 Ford F-150 XLT is a truck with 325 hp and 400 lb-ft, EPA-rated at 19.0/23.0 mpg, starting at $46,145 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=8;
+UPDATE car_models SET quick_answer='The 2026 Ford Mustang GT is a coupe with 486 hp and 418 lb-ft, EPA-rated at 15.0/24.0 mpg, starting at $46,810 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=9;
+UPDATE car_models SET quick_answer='The 2026 Chevrolet Tahoe Z71 is a suv with 355 hp and 383 lb-ft, EPA-rated at 15.0/19.0 mpg, starting at $64,370 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=10;
+UPDATE car_models SET quick_answer='The 2026 Jeep Grand Cherokee Limited is a suv with 293 hp and 260 lb-ft, EPA-rated at 19.0/26.0 mpg, starting at $43,665 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=11;
+UPDATE car_models SET quick_answer='The 2026 Tesla Model 3 Long Range is a sedan with 394 hp and 351 lb-ft, EPA-rated at 363 mi range, starting at $47,740 (MSRP + est. fees).', last_verified_at='2026-09-05' WHERE id=12;
+UPDATE car_models SET quick_answer='The 2026 BMW 330i M Sport is a sedan with 255 hp and 295 lb-ft, EPA-rated at 26.0/36.0 mpg, starting at $45,500 (MSRP + destination).', last_verified_at='2026-09-05' WHERE id=13;
+-- Author expertise (Person schema)
+UPDATE users SET expertise='US new-car market, pricing trends, electric vehicles', social_twitter='', social_linkedin='' WHERE id=1;
+UPDATE users SET expertise='SUVs, trucks, family vehicles', social_twitter='https://x.com/emilycars', social_linkedin='' WHERE id=2;
+-- Article verification dates
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=1;
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=2;
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=3;
+UPDATE articles SET last_verified_at='2026-09-01' WHERE id=4;
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=5;
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=6;
+UPDATE articles SET last_verified_at='2026-09-05' WHERE id=7;
+-- Content sources for all cars
+/*M!999999\- enable the sandbox mode */ 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+INSERT INTO `content_sources` VALUES (1,'car',1,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (2,'car',2,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (3,'car',3,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (4,'car',4,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (5,'car',5,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (6,'car',6,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (7,'car',7,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (8,'car',8,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (9,'car',9,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (10,'car',10,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (11,'car',11,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (12,'car',12,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (13,'car',13,'Manufacturer specifications and pricing documentation',NULL,'manufacturer',NULL,'2026-09-05',NULL,1);
+INSERT INTO `content_sources` VALUES (16,'car',1,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (17,'car',2,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (18,'car',3,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (19,'car',4,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (20,'car',5,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (21,'car',6,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (22,'car',7,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (23,'car',8,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (24,'car',9,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (25,'car',10,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (26,'car',11,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (27,'car',13,'EPA fuel economy ratings','https://www.fueleconomy.gov','government',NULL,'2026-09-05',NULL,2);
+INSERT INTO `content_sources` VALUES (35,'article',4,'IRS Clean Vehicle Credits','https://www.irs.gov/credits-deductions/credits-for-new-clean-vehicles-purchased-in-2023-or-after','government',NULL,'2026-09-05',NULL,0);
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+INSERT INTO settings (setting_key, setting_value) VALUES ('org_description','Independent automotive publication cataloguing US-market car specifications, prices and reviews.');
+INSERT INTO pages (title, slug, content, status, show_in_footer, sort_order, seo_title, meta_description) VALUES
+('Editorial Policy','editorial-policy','<h2>How we create content</h2><p>Specifications, prices and features on this site are compiled from manufacturer documentation and official EPA data. Review verdicts are the independent opinions of our editors.</p><h2>Corrections</h2><p>Errors happen. If you spot one, use the contact page with the page URL and we will correct it and note the change.</p><h2>Independence</h2><p>We are not affiliated with any manufacturer or dealership. Advertising, where present, is labeled and does not influence editorial conclusions.</p>','published',1,6,'Editorial Policy','How we research, write and correct car specifications, prices and reviews.'),
+('Review Methodology','review-methodology','<h2>Data sources</h2><p>Every specification is checked against manufacturer documentation. Prices are MSRP plus destination charges unless noted. Fuel economy figures are EPA estimates.</p><h2>Verdicts</h2><p>Pros and cons reflect how a car compares with its direct segment rivals on the criteria buyers in that segment care about most.</p><h2>Freshness</h2><p>Pages carry a "last verified" date. Dynamic information such as pricing is re-checked when the model year or manufacturer data changes.</p>','published',1,7,'Review Methodology','How we verify car specifications, prices and review verdicts.');

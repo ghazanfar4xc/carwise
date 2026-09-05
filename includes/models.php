@@ -203,6 +203,55 @@ function get_author(string $slug): ?array
     return $st->fetch() ?: null;
 }
 
+function get_sources(string $type, int $id): array
+{
+    $st = db()->prepare('SELECT * FROM content_sources WHERE entity_type = ? AND entity_id = ? ORDER BY sort_order, id');
+    $st->execute([$type, $id]);
+    return $st->fetchAll();
+}
+
+function get_answer_blocks(string $type, int $id): array
+{
+    $st = db()->prepare('SELECT * FROM answer_blocks WHERE entity_type = ? AND entity_id = ? ORDER BY sort_order, id');
+    $st->execute([$type, $id]);
+    return $st->fetchAll();
+}
+
+function source_type_label(string $t): string
+{
+    return match ($t) {
+        'manufacturer' => 'Manufacturer data',
+        'government' => 'Government data',
+        'regulator' => 'Regulator',
+        'research' => 'Research',
+        'official_documentation' => 'Official documentation',
+        'independent_testing' => 'Independent testing',
+        default => 'Reference',
+    };
+}
+
+/**
+ * Auto-301 when a slug changes: old URL -> new URL, chain-safe.
+ * $urlPattern uses sprintf-style %s for the slug (e.g. 'articles/%s').
+ */
+function record_slug_redirect(string $oldSlug, string $newSlug, string $urlPattern, string $notes = 'Auto: slug changed'): void
+{
+    $old = '/' . ltrim(sprintf($urlPattern, $oldSlug), '/');
+    $new = '/' . ltrim(sprintf($urlPattern, $newSlug), '/');
+    if ($old === $new || $oldSlug === '' || $newSlug === '') return;
+    // Resolve chains: if something already redirects FROM $new, point to its target instead
+    $st = db()->prepare('SELECT new_path FROM redirects WHERE old_path = ?');
+    $st->execute([$new]);
+    if ($final = $st->fetchColumn()) $new = $final;
+    // Never create a loop (new must not lead back to old)
+    if ($new === $old) return;
+    db()->prepare('INSERT INTO redirects (old_path, new_path, status_code, notes) VALUES (?, ?, 301, ?)
+                   ON DUPLICATE KEY UPDATE new_path = VALUES(new_path), notes = VALUES(notes)')
+        ->execute([$old, $new, $notes]);
+    // Collapse chains: anything that pointed to the old URL now points to the final target
+    db()->prepare('UPDATE redirects SET new_path = ? WHERE new_path = ?')->execute([$new, $old]);
+}
+
 function author_url(array $u): string { return url('author/' . $u['slug']); }
 
 function get_article(string $slug): ?array

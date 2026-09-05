@@ -1,6 +1,7 @@
 <?php
 /** AutoPulse admin — car editor with tabs: General · Specs · Features · Images · SEO (Module 17). */
 require __DIR__ . '/includes/bootstrap.php';
+require __DIR__ . '/includes/seo-fields.php';
 require_admin();
 
 $id = get_int('id', 0);
@@ -27,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $st->execute($id ? [$brandId, $slug, $id] : [$brandId, $slug]);
         if ((int)$st->fetchColumn() === 0) break;
         $slug = rtrim($slug, '-0123456789') . '-' . ($i + 2);
+    $oldSlug = null;
+    if ($id) { $oldSlug = db()->prepare('SELECT slug FROM car_models WHERE id = ?'); $oldSlug->execute([$id]); $oldSlug = $oldSlug->fetchColumn() ?: null; }
     }
 
     $pros = array_values(array_filter(array_map('trim', explode("\n", (string)($_POST['pros'] ?? '')))));
@@ -58,6 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'is_popular'       => post('is_popular') === '1' ? 1 : 0,
         'seo_title'        => mb_substr(post('seo_title'), 0, 150) ?: null,
         'meta_description' => mb_substr(post('meta_description'), 0, 300) ?: null,
+        'canonical_url'    => mb_substr(post('canonical_url'), 0, 255) ?: null,
+        'og_title'         => mb_substr(post('og_title'), 0, 150) ?: null,
+        'og_description'   => mb_substr(post('og_description'), 0, 300) ?: null,
+        'og_image'         => mb_substr(post('og_image'), 0, 255) ?: null,
+        'robots'           => in_array(post('robots'), ['index, follow', 'noindex, follow', 'noindex, nofollow'], true) ? post('robots') : 'index, follow',
+        'focus_keyword'    => mb_substr(post('focus_keyword'), 0, 120) ?: null,
+        'quick_answer'     => trim((string)($_POST['quick_answer'] ?? '')) ?: null,
+        'last_verified_at' => post('last_verified_at') ?: null,
+        'updated_by'       => (int)current_user()['id'],
     ];
 
     if ($id) {
@@ -128,6 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     cache_forget('sitemap');
+    if ($oldSlug && $oldSlug !== $slug) {
+        $bs = db()->prepare('SELECT slug FROM brands WHERE id = ?'); $bs->execute([$brandId]);
+        record_slug_redirect($oldSlug, $slug, 'cars/' . ($bs->fetchColumn() ?: '') . '/%s');
+    }
+    save_seo_extras('car', $id);
     redirect('admin/car-edit.php?id=' . $id);
 }
 
@@ -374,17 +391,7 @@ include __DIR__ . '/includes/header.php';
 
     <!-- SEO & FAQ -->
     <div class="tab-panel" data-panel="seo" hidden>
-        <section class="panel">
-            <div class="panel-head"><h2>SEO</h2></div>
-            <div class="form-field">
-                <label for="c-seo-title">SEO title</label>
-                <input type="text" id="c-seo-title" name="seo_title" class="input" maxlength="150" value="<?= fv('seo_title', $car['seo_title'] ?? '') ?>">
-            </div>
-            <div class="form-field">
-                <label for="c-meta">Meta description</label>
-                <textarea id="c-meta" name="meta_description" class="textarea" rows="2" maxlength="300"><?= fv('meta_description', $car['meta_description'] ?? '') ?></textarea>
-            </div>
-        </section>
+        <?php render_seo_fields('car', 'car', (int)($car['id'] ?? 0), $car ?? []); ?>
         <section class="panel">
             <div class="panel-head"><h2>FAQ</h2><button type="button" class="btn btn-sm btn-outline faq-add">+ Add question</button></div>
             <div class="faq-rows">

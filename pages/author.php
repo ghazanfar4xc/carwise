@@ -17,6 +17,22 @@ seo_set([
 ]);
 
 $avatar = $author['avatar'] ?: '';
+
+$personSchema = array_filter([
+    '@context'  => 'https://schema.org',
+    '@type'     => 'Person',
+    'name'      => $author['name'],
+    'url'       => author_url(['slug' => $author['slug']]),
+    'image'     => $avatar ? abs_url('/' . ltrim($avatar, '/')) : null,
+    'jobTitle'  => $author['role'] === 'admin' ? 'Editor-in-Chief' : 'Senior Editor',
+    'worksFor'  => ['@type' => 'Organization', 'name' => setting('site_name', 'AutoPulse')],
+], fn($v) => $v !== null && $v !== '');
+if (!empty($author['bio'])) $personSchema['description'] = $author['bio'];
+if (!empty($author['expertise'])) $personSchema['knowsAbout'] = array_map('trim', explode(',', $author['expertise']));
+$sameAs = array_values(array_filter(array_diff([$author['social_twitter'] ?? '', $author['social_linkedin'] ?? ''], [''])));
+if ($sameAs) $personSchema['sameAs'] = $sameAs;
+seo_jsonld($personSchema);
+
 include __DIR__ . '/../includes/header.php';
 ?>
 <header class="page-head">
@@ -33,6 +49,7 @@ include __DIR__ . '/../includes/header.php';
                 <div class="article-header-meta">
                     <span class="tag"><?= e($role) ?></span>
                     <span><?= (int)$author['article_count'] ?> article<?= (int)$author['article_count'] === 1 ? '' : 's' ?></span>
+                    <?php if (!empty($author['expertise'])): ?><span><?= e($author['expertise']) ?></span><?php endif; ?>
                     <span>Joined <?= e(format_date($author['created_at'])) ?></span>
                 </div>
             </div>

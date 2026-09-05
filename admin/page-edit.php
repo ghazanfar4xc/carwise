@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = mb_substr(post('title'), 0, 150);
     if ($title === '') { flash_set('error', 'Title is required.'); redirect('admin/page-edit.php' . ($id ? '?id=' . $id : '')); }
     $slug = unique_slug(db(), 'pages', slugify(post('slug') ?: $title), $id);
+    $oldSlug = null;
+    if ($id) { $oldSlug = db()->prepare('SELECT slug FROM pages WHERE id = ?'); $oldSlug->execute([$id]); $oldSlug = $oldSlug->fetchColumn() ?: null; }
     $data = [
         'title'            => $title,
         'slug'             => $slug,
@@ -37,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     cache_forget('footer_pages');
     cache_forget('sitemap');
+    if ($oldSlug && $oldSlug !== $slug) record_slug_redirect($oldSlug, $slug, '%s');
     redirect('admin/page-edit.php?id=' . $id);
 }
 

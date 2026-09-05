@@ -11,6 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = mb_substr(post('email'), 0, 190);
         $displayName = mb_substr(trim(post('display_name')), 0, 80);
         $bio = mb_substr(trim((string)($_POST['bio'] ?? '')), 0, 2000);
+        $expertise = mb_substr(trim(post('expertise')), 0, 255);
+        $socialTwitter = rtrim(trim(post('social_twitter')), '/');
+        $socialLinkedin = rtrim(trim(post('social_linkedin')), '/');
+        if ($socialTwitter !== '' && !preg_match('#^https://#', $socialTwitter)) $socialTwitter = '';
+        if ($socialLinkedin !== '' && !preg_match('#^https://#', $socialLinkedin)) $socialLinkedin = '';
         $avatar = trim((string)($_POST['avatar'] ?? ''));
         if ($avatar !== '' && !preg_match('#^(uploads|assets)/[\w\-./]+$#', $avatar)) $avatar = '';
         $slug = slugify($displayName ?: $username);
@@ -29,17 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ((int)$dup->fetchColumn() > 0) {
                 flash_set('error', 'Username or email already in use.');
             } else {
-                $data = [$username, $displayName, $slug, $bio, $avatar, $email, $role];
+                $data = [$username, $displayName, $slug, $bio, $avatar, $expertise, $socialTwitter, $socialLinkedin, $email, $role];
                 if ($id) {
                     if ($password !== '') { $data[] = password_hash($password, PASSWORD_DEFAULT); }
                     $data[] = $id;
-                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, email = ?, role = ?'
+                    db()->prepare('UPDATE users SET username = ?, display_name = ?, slug = ?, bio = ?, avatar = ?, expertise = ?, social_twitter = ?, social_linkedin = ?, email = ?, role = ?'
                         . ($password !== '' ? ', password_hash = ?' : '') . ' WHERE id = ?')->execute($data);
                     flash_set('success', 'User updated.');
                 } else {
                     $data[] = password_hash($password, PASSWORD_DEFAULT); // required on create (validated above)
-                    db()->prepare('INSERT INTO users (username, display_name, slug, bio, avatar, email, role, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-                        ->execute($data);
+                    db()->prepare('INSERT INTO users (username, display_name, slug, bio, avatar, expertise, social_twitter, social_linkedin, email, role, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                        ->execute($data); // password appended above
                     flash_set('success', 'User created.');
                 }
             }
@@ -57,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editing = null;
 if (get_int('edit', 0)) {
-    $st = db()->prepare('SELECT id, username, display_name, slug, bio, avatar, email, role, status, last_login FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, username, display_name, slug, bio, avatar, expertise, social_twitter, social_linkedin, email, role, status, last_login FROM users WHERE id = ?');
     $st->execute([get_int('edit', 0)]);
     $editing = $st->fetch() ?: null;
 }
@@ -103,6 +108,20 @@ include __DIR__ . '/includes/header.php';
         <div class="form-field">
             <label for="u-bio">Author bio <span class="hint" style="display:inline">&mdash; shown on the public profile page (/author/<?= e($editing['slug'] ?? 'your-name') ?>)</span></label>
             <textarea id="u-bio" name="bio" class="textarea" rows="3" maxlength="2000" placeholder="e.g. Senior editor covering SUVs and trucks. Based in Austin, Texas."><?= fv('bio', $editing['bio'] ?? '') ?></textarea>
+        </div>
+        <div class="form-row cols-3">
+            <div class="form-field">
+                <label for="u-exp">Expertise <span class="hint" style="display:inline">(comma-separated, Person schema)</span></label>
+                <input type="text" id="u-exp" name="expertise" class="input" value="<?= fv('expertise', $editing['expertise'] ?? '') ?>" placeholder="SUVs, trucks, pricing">
+            </div>
+            <div class="form-field">
+                <label for="u-tw">X / Twitter URL</label>
+                <input type="url" id="u-tw" name="social_twitter" class="input" value="<?= fv('social_twitter', $editing['social_twitter'] ?? '') ?>" placeholder="https://x.com/…">
+            </div>
+            <div class="form-field">
+                <label for="u-li">LinkedIn URL</label>
+                <input type="url" id="u-li" name="social_linkedin" class="input" value="<?= fv('social_linkedin', $editing['social_linkedin'] ?? '') ?>" placeholder="https://linkedin.com/in/…">
+            </div>
         </div>
         <button type="submit" class="btn btn-primary"><?= $editing ? 'Save user' : 'Create user' ?></button>
     </form>

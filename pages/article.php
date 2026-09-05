@@ -11,15 +11,22 @@ db()->prepare('UPDATE articles SET views = views + 1 WHERE id = ?')->execute([$a
 
 [$content, $toc] = content_ids($article['content']);
 $faq = faq_items($article['faq']);
+$artSources = get_sources('article', (int)$article['id']);
+$artAnswers = get_answer_blocks('article', (int)$article['id']);
 $comments = setting('comments_enabled', '1') === '1' ? get_comments((int)$article['id']) : [];
 
 seo_set([
-    'title'       => $article['seo_title'] ?: $article['title'],
-    'description' => $article['meta_description'] ?: excerpt_text((string)$article['excerpt'], 155),
-    'og_type'     => 'article',
-    'og_image'    => $article['featured_image'] ?: 'uploads/general/hero.jpg',
-    'og_title'    => $article['title'],
-    'og_desc'     => $article['meta_description'] ?: excerpt_text((string)$article['excerpt'], 155),
+    'title'         => $article['seo_title'] ?: $article['title'],
+    'description'   => $article['meta_description'] ?: excerpt_text((string)$article['excerpt'], 155),
+    'canonical'     => $article['canonical_url'] ?: null,
+    'robots'        => $article['robots'] ?: 'index, follow',
+    'og_type'       => 'article',
+    'og_image'      => $article['og_image'] ?: ($article['featured_image'] ?: 'uploads/general/hero.jpg'),
+    'og_title'      => $article['og_title'] ?: $article['title'],
+    'og_desc'       => $article['og_description'] ?: ($article['meta_description'] ?: excerpt_text((string)$article['excerpt'], 155)),
+    'published_time'=> $article['published_at'] ? date('c', strtotime($article['published_at'])) : null,
+    'modified_time' => date('c', strtotime($article['updated_at'])),
+    'author_url'    => !empty($article['author_slug']) ? author_url(['slug' => $article['author_slug']]) : null,
 ]);
 render_breadcrumbs([
     ['name' => 'Home', 'url' => ''],
@@ -36,7 +43,11 @@ seo_jsonld([
     'image'         => abs_url('/' . ltrim($article['featured_image'] ?: 'uploads/general/hero.jpg', '/')),
     'datePublished' => date('c', strtotime($article['published_at'])),
     'dateModified'  => date('c', strtotime($article['updated_at'])),
-    'author'        => ['@type' => 'Person', 'name' => $article['author'] ?: setting('site_name', 'AutoPulse')],
+    'author'        => array_filter([
+        '@type' => 'Person',
+        'name'  => $article['author'] ?: setting('site_name', 'AutoPulse'),
+        'url'   => !empty($article['author_slug']) ? author_url(['slug' => $article['author_slug']]) : null,
+    ], fn($v) => $v !== null && $v !== ''),
     'publisher'     => ['@type' => 'Organization', 'name' => setting('site_name', 'AutoPulse')],
     'mainEntityOfPage' => abs_url('/articles/' . $article['slug']),
 ]);
@@ -61,6 +72,8 @@ include __DIR__ . '/../includes/header.php';
                     <?php endif; ?>
                     <h1 style="font-family:var(--font-body);font-weight:800;line-height:1.18;font-size:clamp(1.6rem,1.2rem + 2.2vw,2.5rem)"><?= e($article['title']) ?></h1>
                     <div class="article-header-meta">
+                        <?php if ($article['fact_checked_by']): ?><span title="Fact-checking">✓ Fact-checked by <?= e($article['fact_checked_by']) ?></span><?php endif; ?>
+                        <?php if ($article['last_verified_at'] && date('Y-m-d', strtotime($article['last_verified_at'])) !== date('Y-m-d', strtotime($article['published_at']))): ?><span>✓ Verified <?= e(format_date($article['last_verified_at'])) ?></span><?php endif; ?>
                         <span class="byline">By <?php if (!empty($article['author_slug'])): ?><a class="byline-link" href="<?= e(author_url(['slug' => $article['author_slug']])) ?>"><strong><?= e($article['author'] ?: 'Editorial Team') ?></strong></a><?php else: ?><strong><?= e($article['author'] ?: 'Editorial Team') ?></strong><?php endif; ?></span>
                         <span aria-hidden="true">·</span>
                         <time datetime="<?= e(date('c', strtotime($article['published_at']))) ?>"><?= e(format_date($article['published_at'])) ?></time>
@@ -88,7 +101,26 @@ include __DIR__ . '/../includes/header.php';
 
                 <?php ad_slot('article_top'); ?>
 
-                <div class="prose" id="article-content">
+                <div class="prose article-content" id="article-content" style="margin-bottom:0">
+<?php if ($article['quick_answer']): ?>
+    <aside class="quick-answer" aria-label="Quick answer">
+        <h2>Quick Answer</h2>
+        <p><?= e($article['quick_answer']) ?></p>
+    </aside>
+<?php endif; ?>
+<?php if ($artAnswers): ?>
+    <section class="aeo-blocks" aria-label="Key questions and answers">
+        <h2>Key Questions, Answered</h2>
+        <?php foreach ($artAnswers as $i => $ab): ?>
+        <details class="faq-item" <?= $i === 0 ? 'open' : '' ?>>
+            <summary><?= e($ab['question']) ?></summary>
+            <div class="faq-answer"><p><strong><?= e($ab['short_answer']) ?></strong></p><?= $ab['explanation'] ? '<p>' . e($ab['explanation']) . '</p>' : '' ?></div>
+        </details>
+        <?php endforeach; ?>
+    </section>
+<?php endif; ?>
+</div>
+<div class="prose" id="article-content">
                     <?= $content /* admin-authored HTML */ ?>
                 </div>
 
@@ -109,6 +141,25 @@ include __DIR__ . '/../includes/header.php';
                     <button type="button" class="btn btn-outline btn-sm" data-share="whatsapp">WhatsApp</button>
                     <button type="button" class="btn btn-outline btn-sm" data-share="copy">Copy link</button>
                 </div>
+
+                <?php if ($artSources): ?>
+                <section>
+                    <?php section_head('Sources'); ?>
+                    <ul class="sources-list">
+                        <?php foreach ($artSources as $src): ?>
+                        <li>
+                            <span class="source-type"><?= e(source_type_label($src['source_type'])) ?></span>
+                            <?php if ($src['url']): ?><a href="<?= e($src['url']) ?>" rel="nofollow noopener" target="_blank"><?= e($src['name']) ?></a><?php else: ?><span><?= e($src['name']) ?></span><?php endif; ?>
+                            <small>accessed <?= e(format_date($src['accessed_date'])) ?></small>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </section>
+                <?php endif; ?>
+
+                <?php if ($article['last_verified_at']): ?>
+                <p class="verification-note" style="color:var(--color-muted)">This article was last fact-verified on <?= e(format_date($article['last_verified_at'])) ?>. <a href="<?= e(url('editorial-policy')) ?>">Editorial policy</a></p>
+                <?php endif; ?>
 
                 <?php if ($faq): ?>
                 <section>

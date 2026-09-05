@@ -60,7 +60,8 @@ $socials = array_filter([
     <?php ad_slot('footer'); ?>
     <div class="footer-bottom">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> <?= e($siteName) ?>. <?= e(setting('copyright_text', 'All rights reserved.')) ?></p>
+            <p>&copy; <?= date('Y') ?> <?= e($siteName) ?>. <?= e(setting('copyright_text', 'All rights reserved.')) ?>
+               &middot; <a href="<?= e(url('sitemap')) ?>" style="color:inherit">Sitemap</a></p>
             <p class="footer-disclaimer">Prices and specifications are for information only and may change without notice.</p>
         </div>
     </div>

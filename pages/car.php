@@ -15,11 +15,17 @@ $images = $car['images'] ?: ($car['main_image'] ? [[
 $faq = faq_items($car['faq'] ?? null);
 
 seo_set([
-    'title'       => "{$car['brand']} {$car['name']} — Specs, Price & Review",
+    'title'       => $car['seo_title'] ?: "{$car['brand']} {$car['name']} — Specs, Price & Review",
     'description' => $car['meta_description'] ?: "{$car['brand']} {$car['name']} ({$car['year_start']}): " . excerpt_text($car['overview'] ?? $car['tagline'] ?? '', 150),
+    'canonical'   => $car['canonical_url'] ?: null,
+    'robots'      => $car['robots'] ?: 'index, follow',
     'og_type'     => 'product',
-    'og_image'    => $car['main_image'] ?: 'uploads/general/hero.jpg',
+    'og_title'    => $car['og_title'] ?: ($car['seo_title'] ?: "{$car['brand']} {$car['name']}"),
+    'og_desc'     => $car['og_description'] ?: ($car['meta_description'] ?: excerpt_text($car['overview'] ?? '', 155)),
+    'og_image'    => $car['og_image'] ?: ($car['main_image'] ?: 'uploads/general/hero.jpg'),
 ]);
+$carSources = get_sources('car', (int)$car['id']);
+$carAnswers = get_answer_blocks('car', (int)$car['id']);
 render_breadcrumbs([
     ['name' => 'Home', 'url' => ''],
     ['name' => 'Cars', 'url' => 'cars'],
@@ -27,21 +33,18 @@ render_breadcrumbs([
     ['name' => $car['name']],
 ]);
 faq_schema($faq);
-seo_jsonld([
+seo_jsonld(array_filter([
     '@context'    => 'https://schema.org',
-    '@type'       => 'Product',
+    '@type'       => 'Car',
     'name'        => "{$car['brand']} {$car['name']}",
+    'model'       => $car['name'],
+    'vehicleModelDate' => (string)$car['year_start'],
+    'bodyType'    => $car['body_type'],
     'image'       => abs_url('/' . ltrim($car['main_image'] ?: 'uploads/general/hero.jpg', '/')),
-    'description' => excerpt_text($car['overview'] ?? '', 200),
+    'description' => excerpt_text((string)($car['quick_answer'] ?: $car['overview'] ?? ''), 200),
     'brand'       => ['@type' => 'Brand', 'name' => $car['brand']],
-    'offers'      => [
-        '@type'         => 'Offer',
-        'price'         => (string)(float)$car['price'],
-        'priceCurrency' => setting('currency', DEFAULT_CURRENCY),
-        'availability'  => 'https://schema.org/InStock',
-        'url'           => abs_url('/cars/' . $car['brand_slug'] . '/' . $car['slug']),
-    ],
-]);
+    'url'         => abs_url('/cars/' . $car['brand_slug'] . '/' . $car['slug']),
+], fn($v) => $v !== null && $v !== ''));
 
 $specRows = [ // label => [value, format]
     'Engine'                => [$specs['engine'] ?? '', 'text'],
@@ -96,6 +99,7 @@ include __DIR__ . '/../includes/header.php';
             <span><?= e(implode(' · ', array_filter([$car['generation'], $car['year_start'] ? $car['year_start'] : null]))) ?></span>
             <span><?= e($car['body_type']) ?><?= $car['segment'] ? ' · ' . e($car['segment']) : '' ?></span>
             <span><?= (int)$car['views'] ?> views</span>
+            <?php if ($car['last_verified_at']): ?><span title="Specifications last verified">✓ Verified <?= e(format_date($car['last_verified_at'])) ?></span><?php endif; ?>
         </div>
     </div>
 </header>
@@ -147,6 +151,28 @@ include __DIR__ . '/../includes/header.php';
                 </div>
             </div>
         </div>
+
+        <?php if ($car['quick_answer']): ?>
+        <section class="quick-answer" aria-label="Quick answer">
+            <h2><?= e($car['brand'] . ' ' . $car['name']) ?> — Quick Answer</h2>
+            <p><?= e($car['quick_answer']) ?></p>
+            <?php if ($car['last_verified_at']): ?><span class="verified-badge">✓ Specs verified <?= e(format_date($car['last_verified_at'])) ?></span><?php endif; ?>
+        </section>
+        <?php endif; ?>
+
+        <?php if ($carAnswers): ?>
+        <section class="section" style="padding-block:1.5rem 0">
+            <?php section_head('Quick Answers'); ?>
+            <div class="faq-list">
+                <?php foreach ($carAnswers as $i => $ab): ?>
+                <details class="faq-item" <?= $i === 0 ? 'open' : '' ?>>
+                    <summary><?= e($ab['question']) ?></summary>
+                    <div class="faq-answer"><p><strong><?= e($ab['short_answer']) ?></strong></p><?= $ab['explanation'] ? '<p>' . e($ab['explanation']) . '</p>' : '' ?></div>
+                </details>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php endif; ?>
 
         <?php if ($car['overview']): ?>
         <section class="section" style="padding-block:1.5rem">
@@ -212,6 +238,22 @@ include __DIR__ . '/../includes/header.php';
                 </details>
                 <?php endforeach; ?>
             </div>
+        </section>
+        <?php endif; ?>
+
+        <?php if ($carSources): ?>
+        <section>
+            <?php section_head('Sources'); ?>
+            <ul class="sources-list reveal">
+                <?php foreach ($carSources as $src): ?>
+                <li>
+                    <span class="source-type"><?= e(source_type_label($src['source_type'])) ?></span>
+                    <?php if ($src['url']): ?><a href="<?= e($src['url']) ?>" rel="nofollow noopener" target="_blank"><?= e($src['name']) ?></a><?php else: ?><span><?= e($src['name']) ?></span><?php endif; ?>
+                    <small>accessed <?= e(format_date($src['accessed_date'])) ?></small>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+            <p style="color:var(--color-muted)">Specifications and pricing on this page are compiled from the sources above. <a href="<?= e(url('review-methodology')) ?>">How we verify data</a>.</p>
         </section>
         <?php endif; ?>
 

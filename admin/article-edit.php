@@ -1,6 +1,7 @@
 <?php
 /** AutoPulse admin — article editor (Module 16): publish, schedule, SEO, FAQ, tags. */
 require __DIR__ . '/includes/bootstrap.php';
+require __DIR__ . '/includes/seo-fields.php';
 require_admin();
 
 $id = get_int('id', 0);
@@ -19,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slug = slugify($slugInput !== '' ? $slugInput : $title);
     if ($slug === 'item') $slug = 'article-' . time();
     $slug = unique_slug(db(), 'articles', $slug, $id);
+    $oldSlug = null;
+    if ($id) { $oldSlug = db()->prepare('SELECT slug FROM articles WHERE id = ?'); $oldSlug->execute([$id]); $oldSlug = $oldSlug->fetchColumn() ?: null; }
 
     $publishedAt = post('published_at');
     $status = in_array(post('status'), ['draft', 'published', 'scheduled'], true) ? post('status') : 'draft';
@@ -44,6 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'seo_title'        => mb_substr(post('seo_title'), 0, 150) ?: null,
         'meta_description' => mb_substr(post('meta_description'), 0, 300) ?: null,
         'canonical_url'    => mb_substr(post('canonical_url'), 0, 255) ?: null,
+        'og_title'         => mb_substr(post('og_title'), 0, 150) ?: null,
+        'og_description'   => mb_substr(post('og_description'), 0, 300) ?: null,
+        'og_image'         => mb_substr(post('og_image'), 0, 255) ?: null,
+        'robots'           => in_array(post('robots'), ['index, follow', 'noindex, follow', 'noindex, nofollow'], true) ? post('robots') : 'index, follow',
+        'focus_keyword'    => mb_substr(post('focus_keyword'), 0, 120) ?: null,
+        'secondary_keywords' => mb_substr(post('secondary_keywords'), 0, 500) ?: null,
+        'search_intent'    => in_array(post('search_intent'), ['informational', 'commercial', 'transactional', 'navigational'], true) ? post('search_intent') : null,
+        'quick_answer'     => trim((string)($_POST['quick_answer'] ?? '')) ?: null,
+        'last_verified_at' => post('last_verified_at') ?: null,
+        'fact_checked_by'  => mb_substr(post('fact_checked_by'), 0, 120) ?: null,
+        'updated_by'       => (int)current_user()['id'],
         'user_id'          => (int)post('user_id') ?: ($article['user_id'] ?? current_user()['id']),
         'brand_id'         => (int)post('brand_id') ?: null,
         'category_id'      => (int)post('category_id') ?: null,
@@ -71,7 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stTag = db()->prepare('INSERT IGNORE INTO article_tags (article_id, tag_id) SELECT ?, id FROM tags WHERE id = ?');
     foreach ((array)($_POST['tags'] ?? []) as $tid) if (ctype_digit((string)$tid)) $stTag->execute([$id, (int)$tid]);
 
+    save_seo_extras('article', $id);
     cache_forget('sitemap');
+    if ($oldSlug && $oldSlug !== $slug) record_slug_redirect($oldSlug, $slug, 'articles/%s');
     redirect('admin/article-edit.php?id=' . $id);
 }
 
@@ -157,22 +173,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </section>
 
-            <section class="panel">
-                <div class="panel-head"><h2>SEO</h2></div>
-                <div class="form-field">
-                    <label for="a-seo-title">SEO title</label>
-                    <input type="text" id="a-seo-title" name="seo_title" class="input" maxlength="150" value="<?= fv('seo_title', $article['seo_title'] ?? '') ?>">
-                    <p class="hint">Google shows ~60 characters.</p>
-                </div>
-                <div class="form-field">
-                    <label for="a-meta">Meta description</label>
-                    <textarea id="a-meta" name="meta_description" class="textarea" rows="2" maxlength="300"><?= fv('meta_description', $article['meta_description'] ?? '') ?></textarea>
-                </div>
-                <div class="form-field">
-                    <label for="a-canonical">Canonical URL (optional)</label>
-                    <input type="url" id="a-canonical" name="canonical_url" class="input" value="<?= fv('canonical_url', $article['canonical_url'] ?? '') ?>" placeholder="https://…">
-                </div>
-            </section>
+            <?php render_seo_fields('article', 'article', (int)($article['id'] ?? 0), $article ?? []); ?>
         </div>
 
         <aside class="edit-side">

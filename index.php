@@ -139,6 +139,11 @@ switch ($seg[0] ?? '') {
 
     case 'compare':
         $page = 'compare';
+        if (count($seg) === 2) { $page = 'compare-seo'; $params = ['pair' => $seg[1]]; }
+        break;
+
+    case 'sitemap':
+        $page = 'sitemap-page';
         break;
 
     case 'contact':
